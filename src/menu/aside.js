@@ -9,5 +9,12 @@ export default [
       { path: '/page2', title: '页面 2' },
       { path: '/page3', title: '页面 3' }
     ]
+  },
+  {
+    title: '系统设置',
+    icon: '',
+    children: [
+      { path: '/router', title: '路由设置' }
+    ]
   }
 ]

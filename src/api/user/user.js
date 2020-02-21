@@ -1,4 +1,5 @@
 import { httpGet, httpPost } from '@api/http'
+import { login, logout, userInfo } from '../baseUrl'
 
 /**
  * 用户登录
@@ -6,7 +7,7 @@ import { httpGet, httpPost } from '@api/http'
  * @constructor
  */
 export function Login (data) {
-  return httpPost('/v1/server/system/oauth2/user/login', data)
+  return httpPost(login, data)
 }
 
 /**
@@ -14,5 +15,13 @@ export function Login (data) {
  * @param data
  */
 export function Logout (data) {
-  return httpGet('v1/server/system/oauth2/user/logout', data)
+  return httpGet(logout, data)
+}
+
+/**
+ * 用户详情
+ * @param data
+ */
+export function UserInfo (data) {
+  return httpGet(userInfo, data)
 }

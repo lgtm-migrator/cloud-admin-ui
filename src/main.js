@@ -41,6 +41,6 @@ new Vue({
     // 初始化全屏监听
     this.$store.dispatch('d2admin/fullscreen/listen')
     // 初始化菜单
-    // this.$store.commit('d2admin/menu/asideSet', null)
+    this.$store.commit('d2admin/menu/asideSet')
   }
 }).$mount('#app')

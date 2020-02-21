@@ -1,7 +1,7 @@
 import { Message, MessageBox } from 'element-ui'
 import util from '@/libs/util.js'
 import router from '@/router'
-import { AccountLogin } from '@api/sys.login'
+import { Login, Logout, UserInfo } from '@api/user/user'
 
 export default {
   namespaced: true,
@@ -14,31 +14,30 @@ export default {
      * @param {Object} payload route {Object} 登录成功后定向的路由对象 任何 vue-router 支持的格式
      */
     login ({ dispatch }, {
-      username = '',
+      userName = '',
       password = ''
     } = {}) {
+      // 开始请求登录接口
       return new Promise((resolve, reject) => {
-        // 开始请求登录接口
-        AccountLogin({
-          username,
+        Login({
+          userName,
           password
         })
-          .then(async res => {
-            // 设置 cookie 一定要存 uuid 和 token 两个 cookie
-            // 整个系统依赖这两个数据进行校验和存储
-            // uuid 是用户身份唯一标识 用户注册的时候确定 并且不可改变 不可重复
-            // token 代表用户当前登录状态 建议在网络请求中携带 token
-            // 如有必要 token 需要定时更新，默认保存一天
-            util.cookies.set('uuid', res.uuid)
-            util.cookies.set('token', res.token)
-            // 设置 vuex 用户信息
-            await dispatch('d2admin/user/set', {
-              name: res.name
-            }, { root: true })
-            // 用户登录后从持久化数据加载一系列的设置
-            await dispatch('load')
-            // 结束
-            resolve()
+          .then(res => {
+            if (res.errCode !== 200) {
+              Message.error(res.data)
+            } else {
+              util.cookies.set('token', res.data.accessToken)
+              // 设置 vuex 用户信息
+              dispatch('d2admin/user/set', {
+                name: res.name
+              }, { root: true })
+              // 用户登录后从持久化数据加载一系列的设置
+              dispatch('load')
+              dispatch('userInfo')
+              // 结束
+              resolve()
+            }
           })
           .catch(err => {
             console.log('err: ', err)
@@ -55,17 +54,30 @@ export default {
       /**
        * @description 注销
        */
-      async function logout () {
-        // 删除cookie
-        util.cookies.remove('token')
-        util.cookies.remove('uuid')
-        // 清空 vuex 用户信息
-        await dispatch('d2admin/user/set', {}, { root: true })
-        // 跳转路由
-        router.push({
-          name: 'login'
+      function logout () {
+        return new Promise((resolve, reject) => {
+          let params = { access_token: util.cookies.get('token') }
+          Logout(params).then(result => {
+            if (result.errCode === 200) {
+              // 删除cookie
+              util.cookies.remove('token')
+              util.cookies.remove('userId')
+              // 清空 vuex 用户信息
+              dispatch('d2admin/user/set', {}, { root: true })
+              // 跳转路由
+              router.push({
+                name: 'login'
+              })
+            } else {
+              Message.error(result.data)
+            }
+          }).catch(error => {
+            console.log('err: ', error)
+            reject(error)
+          })
         })
       }
+
       // 判断是否需要确认
       if (confirm) {
         commit('d2admin/gray/set', true, { root: true })
@@ -84,6 +96,54 @@ export default {
           })
       } else {
         logout()
+      }
+    },
+    /**
+     * 用户详情
+     */
+    userInfo ({ dispatch }) {
+      let token = util.cookies.get('token')
+      if (!token) {
+        Message.error('用户未登录或登录过期,请重新登录')
+        // 跳转路由
+        router.push({
+          name: 'login'
+        })
+      } else {
+        return new Promise((resolve, reject) => {
+          let params = { access_token: util.cookies.get('token') }
+          UserInfo(params).then(result => {
+            if (result.errCode !== 200) {
+              Message({
+                message: '获取用户信息失败,请重新登录',
+                type: 'error',
+                onClose: function () {
+                  // 跳转路由
+                  router.push({
+                    name: 'login'
+                  })
+                }
+              })
+            } else {
+              let userId = result.data.userDetail.userId
+              let username = result.data.userDetail.username
+              let name = result.data.userDetail.name
+              // 保存用户
+              dispatch('d2admin/user/set', {
+                name: name,
+                userId: userId,
+                username: username
+              }, { root: true })
+              // 用户登录后从持久化数据加载一系列的设置
+              dispatch('load')
+              // 结束
+              resolve()
+            }
+          }).catch(error => {
+            console.log('err: ', error)
+            reject(error)
+          })
+        })
       }
     },
     /**

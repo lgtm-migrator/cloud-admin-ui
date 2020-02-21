@@ -21,6 +21,15 @@ const frameIn = [
         },
         component: _import('system/index')
       },
+      {
+        path: 'router',
+        name: 'router',
+        meta: {
+          title: '路由',
+          auth: true
+        },
+        component: _import('system/router')
+      },
       // 演示页面
       {
         path: 'page1',
