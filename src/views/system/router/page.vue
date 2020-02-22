@@ -37,6 +37,12 @@
                            align="center"></el-table-column>
           <el-table-column prop="createTime" label="创建时间" sortable resizable :show-overflow-tooltip="true"
                            align="center"></el-table-column>
+          <el-table-column label="操作" sortable resizable :show-overflow-tooltip="true"
+                           align="center">
+            <template slot-scope="scope">
+              <el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <el-pagination align='left'
                        @size-change="handleSizeChange"
@@ -77,7 +83,7 @@
   </d2-container>
 </template>
 <script> import { mapActions } from 'vuex'
-import { routerSavePath, routersPath } from '@api/adminApi/router'
+import { routerSavePath, routersPath, routerUpdatePath } from '@api/adminApi/router'
 
 export default {
   data: function () {
@@ -111,7 +117,12 @@ export default {
       routerList: [],
       // 路由详情
       routerInfo: {
-        order: 0
+        order: 0,
+        description: '',
+        predicates: '',
+        filters: '',
+        uri: ''
+
       },
       isUpdate: false,
       // 分页
@@ -140,7 +151,7 @@ export default {
     this.getRouters()
   },
   methods: {
-    ...mapActions('cloudAdmin/router', ['routers', 'addRouter']),
+    ...mapActions('cloudAdmin/router', ['routers', 'addRouter', 'updateRouter']),
     /**
      * 路由集
      */
@@ -178,6 +189,25 @@ export default {
     addNew: function () {
       let _self = this
       _self.dialogFormVisible = true
+      _self.isUpdate = false
+    },
+    /**
+     *编辑
+     */
+    handleEdit: function (index, row) {
+      let _self = this
+      let info = row
+      let predicates = info.predicates
+      if (predicates) {
+        info.predicates = _self.toJsonString(predicates)
+      }
+      let filters = info.filters
+      if (filters) {
+        info.filters = _self.toJsonString(filters)
+      }
+      _self.routerInfo = info
+      _self.dialogFormVisible = true
+      _self.isUpdate = true
     },
     /**
      * 保存
@@ -187,24 +217,21 @@ export default {
       // 校验
       this.$refs.routerForm.validate((valid) => {
         if (valid) {
-          let predicates = _self.routerInfo.predicates
+          let info = _self.routerInfo
+          let predicates = info.predicates
           if (predicates) {
             let isJson = _self.isJson(predicates)
             if (!isJson) {
               this.$message.error('断言(JSON)格式不正确，请检查')
               return null
-            } else {
-              _self.routerInfo.predicates = JSON.parse(predicates)
             }
           }
-          let filters = _self.routerInfo.filters
+          let filters = info.filters
           if (filters) {
             let isJson = _self.isJson(filters)
             if (!isJson) {
               this.$message.error('路由过滤器(JSON)格式不正确，请检查')
               return null
-            } else {
-              _self.routerInfo.filters = JSON.parse(filters)
             }
           }
           if (_self.isUpdate) {
@@ -223,17 +250,40 @@ export default {
      * 保存
      */
     save: function () {
-      console.log('保存用户')
       let _self = this
-      _self.addRouter({ url: routerSavePath, data: _self.routerInfo }).then(result => {
-        _self.getRouters()
+      let info = JSON.parse(JSON.stringify(_self.routerInfo))
+      info.predicates = JSON.parse(info.predicates)
+      info.filters = JSON.parse(info.filters)
+      _self.addRouter({ url: routerSavePath, data: info }).then(result => {
+        if (result.errCode !== 200) {
+          this.$message.error(result.data)
+        } else {
+          _self.dialogFormVisible = false
+          _self.getRouters()
+          _self.setRouterInfoIsNull()
+        }
       })
     },
     /**
      * 修改
      */
     update: function () {
-
+      let _self = this
+      // let info = _self.routerInfo 为地址copy
+      let info = JSON.parse(JSON.stringify(_self.routerInfo))
+      info.predicates = _self.toJsonObj(info.predicates)
+      info.filters = JSON.parse(info.filters)
+      _self.updateRouter({ url: routerUpdatePath, data: info }).then(result => {
+        if (result.errCode !== 200) {
+          this.$message.error(result.data)
+        } else {
+          _self.dialogFormVisible = false
+          _self.getRouters()
+          _self.setRouterInfoIsNull()
+        }
+      }).catch(err => {
+        this.$message.error(err)
+      })
     },
     /**
      * 判断是否为json
@@ -248,6 +298,33 @@ export default {
           return false
         }
       }
+    },
+    /**
+     * 转json对象
+     */
+    toJsonObj: function (str) {
+      if (!str) {
+        return null
+      }
+      return JSON.parse(str)
+    },
+    /**
+     * 转jsonstring
+     * @param obj
+     */
+    toJsonString: function (obj) {
+      if (!obj) {
+        return null
+      }
+      return JSON.stringify(obj)
+    },
+    setRouterInfoIsNull: function () {
+      let _self = this
+      _self.routerInfo.order = 0
+      _self.routerInfo.description = ''
+      _self.routerInfo.predicates = ''
+      _self.routerInfo.filters = ''
+      _self.routerInfo.uri = ''
     }
   }
 }

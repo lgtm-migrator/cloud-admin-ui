@@ -8,3 +8,9 @@ export const routersPath = '/routers'
  * @type {string}
  */
 export const routerSavePath = '/add'
+
+/**
+ * 修改路由
+ * @type {string}
+ */
+export const routerUpdatePath = '/update'

@@ -1,6 +1,7 @@
 /**
  * 网关路由
  * @type {string}
+ * 废弃
  */
 export const gatewayRouter = '/v1/api/gateway/router'
 /**

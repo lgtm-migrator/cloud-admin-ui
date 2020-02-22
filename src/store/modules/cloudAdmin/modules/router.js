@@ -1,4 +1,4 @@
-import { AddRouter, Routers } from '@api/user/router'
+import { AddRouter, Routers, UpdateRouter } from '@api/user/router'
 import { Message } from 'element-ui'
 
 export default {
@@ -38,11 +38,23 @@ export default {
     addRouter ({ dispatch }, { url, data } = {}) {
       return new Promise((resolve, reject) => {
         AddRouter(url, data).then(result => {
-          if (result.errCode !== 200) {
-            Message.error(result.data)
-            resolve()
-          }
-          resolve()
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    /**
+     * 修改路由
+     * @param dispatch
+     * @param url
+     * @param data
+     */
+    updateRouter ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        UpdateRouter(url, data).then(result => {
+          console.log('result', result)
+          resolve(result)
         }).catch(error => {
           reject(error)
         })

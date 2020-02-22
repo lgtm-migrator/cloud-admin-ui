@@ -3,7 +3,7 @@
  * @constructor
  */
 import { httpGet, httpPost } from '../http'
-import { gatewayRouter, routerServer } from '../baseUrl'
+import { routerServer } from '../baseUrl'
 
 /**
  * 获取路由集
@@ -12,11 +12,7 @@ import { gatewayRouter, routerServer } from '../baseUrl'
  * @constructor
  */
 export function Routers (url, data) {
-  if (url) {
-    url = routerServer + url
-  } else {
-    url = routerServer
-  }
+  url = routerBaseUrl(url)
   if (data) {
     return httpGet(url, data)
   }
@@ -30,13 +26,32 @@ export function Routers (url, data) {
  * @constructor
  */
 export function AddRouter (url, data) {
-  if (url) {
-    url = gatewayRouter + url
-  } else {
-    url = gatewayRouter
-  }
+  url = routerBaseUrl(url)
   if (data) {
     return httpPost(url, data)
   }
   return httpPost(url, null)
+}
+
+/**
+ * 路由修改
+ * @param url
+ * @param data
+ * @constructor
+ */
+export function UpdateRouter (url, data) {
+  url = routerBaseUrl(url)
+  if (data) {
+    return httpPost(url, data)
+  }
+  return httpPost(url, null)
+}
+
+export function routerBaseUrl (url) {
+  if (url) {
+    url = routerServer + url
+  } else {
+    url = routerServer
+  }
+  return url
 }
