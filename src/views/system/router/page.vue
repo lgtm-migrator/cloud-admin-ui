@@ -2,16 +2,16 @@
   <d2-container class="page">
     <el-form ref="searchForm" :model="searchForm" size="mini" :inline="true" :label-position="position">
       <el-form-item>
-        <el-input v-model="searchForm.id" placeholder="路由id"></el-input>
+        <el-input v-model="searchForm.id" placeholder="路由id" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-input v-model="searchForm.description" placeholder="路由名称"></el-input>
+        <el-input v-model="searchForm.description" placeholder="路由名称" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-input v-model="searchForm.uri" placeholder="转换目标uri"></el-input>
+        <el-input v-model="searchForm.uri" placeholder="转换目标uri" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button>查询</el-button>
+        <el-button @click="handleSearch">查询</el-button>
         <el-button type="primary" @click="addNew">新增</el-button>
       </el-form-item>
     </el-form>
@@ -23,10 +23,10 @@
                            align="center"></el-table-column>
           <el-table-column prop="description" label="说明" sortable resizable :show-overflow-tooltip="true"
                            align="center"></el-table-column>
-          <el-table-column prop="predicates" :formatter="toJsonPredicates" label="断言(json)" sortable resizable
+          <el-table-column prop="predicates" label="断言(json)" sortable resizable
                            :show-overflow-tooltip="true"
                            align="center"></el-table-column>
-          <el-table-column prop="filters" :formatter="toJsonFilters" label="路由过滤器(JSON)" sortable resizable
+          <el-table-column prop="filters" label="路由过滤器(JSON)" sortable resizable
                            :show-overflow-tooltip="true"
                            align="center"></el-table-column>
           <el-table-column prop="uri" label="转发的目标uri" sortable resizable :show-overflow-tooltip="true"
@@ -41,6 +41,7 @@
                            align="center">
             <template slot-scope="scope">
               <el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+              <el-button size="mini" type="danger" @click="handleRemove(scope.$index,scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -71,7 +72,7 @@
         <el-form-item required label="转发目标Uri" prop="uri">
           <el-input v-model="routerInfo.uri" clearable></el-input>
         </el-form-item>
-        <el-form-item label="执行顺序" prop="order">
+        <el-form-item required label="执行顺序" prop="order">
           <el-input v-model.number="routerInfo.order" clearable></el-input>
         </el-form-item>
       </el-form>
@@ -83,7 +84,9 @@
   </d2-container>
 </template>
 <script> import { mapActions } from 'vuex'
-import { routerSavePath, routersPath, routerUpdatePath } from '@api/adminApi/router'
+import { routerRemovePath, routerSavePath, routersPath, routerUpdatePath } from '@api/adminApi/router'
+import router from '@/router'
+import { MessageBox } from 'element-ui'
 
 export default {
   data: function () {
@@ -143,6 +146,11 @@ export default {
           required: true,
           message: '请输入转发目标uri',
           trigger: 'blur'
+        }],
+        order: [{
+          required: true,
+          message: '请输入执行顺序',
+          trigger: 'blur'
         }]
       }
     }
@@ -151,15 +159,34 @@ export default {
     this.getRouters()
   },
   methods: {
-    ...mapActions('cloudAdmin/router', ['routers', 'addRouter', 'updateRouter']),
+    ...mapActions('cloudAdmin/router', ['routers', 'addRouter', 'updateRouter', 'removeRouter']),
     /**
      * 路由集
      */
-    getRouters () {
+    getRouters: function () {
       let _self = this
-      this.routers({ url: routersPath, data: '' }).then(result => {
-        _self.routerList = result
+      let routers = routersPath + '/' + _self.pages.page + '/' + _self.pages.pageSize
+      let search = JSON.parse(JSON.stringify(_self.searchForm))
+      this.routers({ url: routers, data: search }).then(result => {
+        if (result.errCode === 514) {
+          _self.$message.error(result.data)
+          router.push({
+            name: 'login'
+          })
+        } else if (result.errCode !== 200) {
+          _self.$message.error(result.data)
+          return null
+        }
+        _self.routerList = result.data.list
+        _self.pages.total = result.data.total
       })
+    },
+    /**
+     * 查询
+     */
+    handleSearch: function () {
+      let _self = this
+      _self.getRouters()
     },
     /**
      *  断言
@@ -188,6 +215,7 @@ export default {
      */
     addNew: function () {
       let _self = this
+      _self.setRouterInfoIsNull()
       _self.dialogFormVisible = true
       _self.isUpdate = false
     },
@@ -197,17 +225,20 @@ export default {
     handleEdit: function (index, row) {
       let _self = this
       let info = row
-      let predicates = info.predicates
-      if (predicates) {
-        info.predicates = _self.toJsonString(predicates)
-      }
-      let filters = info.filters
-      if (filters) {
-        info.filters = _self.toJsonString(filters)
-      }
       _self.routerInfo = info
       _self.dialogFormVisible = true
       _self.isUpdate = true
+    },
+    /**
+     * 删除
+     */
+    handleRemove: function (index, row) {
+      let _self = this
+      MessageBox.confirm('是否删除该数据', '删除', {
+        type: 'warning'
+      }).then(() => {
+        _self.remove(row.id)
+      })
     },
     /**
      * 保存
@@ -252,8 +283,6 @@ export default {
     save: function () {
       let _self = this
       let info = JSON.parse(JSON.stringify(_self.routerInfo))
-      info.predicates = JSON.parse(info.predicates)
-      info.filters = JSON.parse(info.filters)
       _self.addRouter({ url: routerSavePath, data: info }).then(result => {
         if (result.errCode !== 200) {
           this.$message.error(result.data)
@@ -271,8 +300,6 @@ export default {
       let _self = this
       // let info = _self.routerInfo 为地址copy
       let info = JSON.parse(JSON.stringify(_self.routerInfo))
-      info.predicates = _self.toJsonObj(info.predicates)
-      info.filters = JSON.parse(info.filters)
       _self.updateRouter({ url: routerUpdatePath, data: info }).then(result => {
         if (result.errCode !== 200) {
           this.$message.error(result.data)
@@ -284,6 +311,27 @@ export default {
       }).catch(err => {
         this.$message.error(err)
       })
+    },
+    /**
+     * 删除
+     */
+    remove: function (id) {
+      let _self = this
+      if (id) {
+        let removePath = routerRemovePath + '/' + id
+        _self.removeRouter({ url: removePath, data: null }).then(result => {
+          if (result.errCode === 514) {
+            _self.$message.error(result.data)
+            router.push({
+              name: 'login'
+            })
+          } else if (result.errCode !== 200) {
+            _self.$message.error(result.data)
+            return null
+          }
+          _self.getRouters()
+        })
+      }
     },
     /**
      * 判断是否为json
@@ -320,11 +368,9 @@ export default {
     },
     setRouterInfoIsNull: function () {
       let _self = this
-      _self.routerInfo.order = 0
-      _self.routerInfo.description = ''
-      _self.routerInfo.predicates = ''
-      _self.routerInfo.filters = ''
-      _self.routerInfo.uri = ''
+      _self.routerInfo = {
+        order: 0
+      }
     }
   }
 }

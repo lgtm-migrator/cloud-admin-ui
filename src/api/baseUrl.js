@@ -23,6 +23,11 @@ export const logout = '/v1/server/system/oauth2/user/logout'
 export const userInfo = '/v1/server/system/oauth2/user/info'
 
 /**
+ * 用户服务
+ * @type {string}
+ */
+export const userServer = '/v1/server/system/user'
+/**
  * 路由
  */
 export const routerServer = '/v1/server/system/router'

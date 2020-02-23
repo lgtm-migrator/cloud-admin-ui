@@ -17,10 +17,22 @@ const frameIn = [
         path: 'index',
         name: 'index',
         meta: {
-          auth: true
+          auth: true,
+          title: '首页'
         },
         component: _import('system/index')
       },
+      // 用户信息
+      {
+        path: 'userInfo',
+        name: 'userInfo',
+        meta: {
+          auth: true,
+          title: '用户信息'
+        },
+        component: _import('system/userInfo')
+      },
+      // 系统服务路由
       {
         path: 'router',
         name: 'router',

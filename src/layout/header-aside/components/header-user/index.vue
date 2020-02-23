@@ -6,12 +6,17 @@
         <d2-icon name="power-off" class="d2-mr-5"/>
         注销
       </el-dropdown-item>
+      <el-dropdown-item @click.native="settingUser">
+        <i class="fa fa-cogs" aria-hidden="true"></i>
+        设置
+      </el-dropdown-item>
     </el-dropdown-menu>
   </el-dropdown>
 </template>
 
-<script>
-import { mapState, mapActions } from 'vuex'
+<script>import { mapActions, mapState } from 'vuex'
+import router from '@/router'
+
 export default {
   computed: {
     ...mapState('d2admin/user', [
@@ -22,12 +27,33 @@ export default {
     ...mapActions('d2admin/account', [
       'logout'
     ]),
+    ...mapActions('cloudAdmin/user', [
+      'userInfoById'
+    ]),
+    ...mapActions('d2admin/page', [
+      'open'
+    ]),
     /**
-     * @description 登出
+     * 用户登出
      */
     logOff () {
       this.logout({
         confirm: true
+      })
+    },
+    /**
+     * 用户设置
+     */
+    settingUser () {
+      let _self = this
+      _self.getUserInfo()
+    },
+    /**
+     * 获取用户信息
+     */
+    getUserInfo () {
+      router.push({
+        name: 'userInfo'
       })
     }
   }

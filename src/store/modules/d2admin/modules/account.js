@@ -27,7 +27,7 @@ export default {
             if (res.errCode !== 200) {
               Message.error(res.data)
             } else {
-              util.cookies.set('token', res.data.accessToken)
+              util.cookies.set('token', res.data.accessToken, { expires: 10 })
               // 设置 vuex 用户信息
               dispatch('d2admin/user/set', {
                 name: res.name
@@ -126,6 +126,7 @@ export default {
               })
             } else {
               let userId = result.data.userDetail.userId
+              util.cookies.set('userId', userId, { expires: 10 })
               let username = result.data.userDetail.username
               let name = result.data.userDetail.name
               // 保存用户

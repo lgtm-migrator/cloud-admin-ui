@@ -14,9 +14,9 @@ import { routerServer } from '../baseUrl'
 export function Routers (url, data) {
   url = routerBaseUrl(url)
   if (data) {
-    return httpGet(url, data)
+    return httpPost(url, data)
   }
-  return httpGet(url, null)
+  return httpPost(url, null)
 }
 
 /**
@@ -45,6 +45,21 @@ export function UpdateRouter (url, data) {
     return httpPost(url, data)
   }
   return httpPost(url, null)
+}
+
+/**
+ * 删除路由
+ * @param url
+ * @param data
+ * @constructor
+ */
+export function RemoveRouter (url, data) {
+  url = routerBaseUrl(url)
+  if (data) {
+    return httpGet(url, data)
+  } else {
+    return httpGet(url, null)
+  }
 }
 
 export function routerBaseUrl (url) {

@@ -1,5 +1,4 @@
-import { AddRouter, Routers, UpdateRouter } from '@api/user/router'
-import { Message } from 'element-ui'
+import { AddRouter, RemoveRouter, Routers, UpdateRouter } from '@api/user/router'
 
 export default {
   namespaced: true,
@@ -16,12 +15,7 @@ export default {
       return new Promise((resolve, reject) => {
         Routers(url, data)
           .then(result => {
-            if (result.errCode !== 200) {
-              Message.error(result.data)
-              resolve()
-            }
-            // 结束
-            resolve(result.data)
+            resolve(result)
           })
           .catch(error => {
             reject(error)
@@ -53,7 +47,21 @@ export default {
     updateRouter ({ dispatch }, { url, data } = {}) {
       return new Promise((resolve, reject) => {
         UpdateRouter(url, data).then(result => {
-          console.log('result', result)
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    /**
+     * 删除路由
+     * @param dispatch
+     * @param url
+     * @param data
+     */
+    removeRouter ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        RemoveRouter(url, data).then(result => {
           resolve(result)
         }).catch(error => {
           reject(error)

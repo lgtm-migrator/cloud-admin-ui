@@ -14,3 +14,9 @@ export const routerSavePath = '/add'
  * @type {string}
  */
 export const routerUpdatePath = '/update'
+
+/**
+ * 删除路由
+ * @type {string}
+ */
+export const routerRemovePath = '/delete'
