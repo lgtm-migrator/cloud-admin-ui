@@ -5,7 +5,7 @@
         <el-row>
           <el-col :span="8"></el-col>
           <el-col :span="8">
-            <el-form ref="routerForm" :model="userInfo"  required-asterisk  label-width="auto"  :rules="rules"
+            <el-form ref="routerForm" :model="userInfo"  required-asterisk   :rules="rules"
                      :label-position="position"
                      center>
               <el-form-item prop="username" label="用户账号">
@@ -39,7 +39,7 @@
         <el-row>
           <el-col :span="8"></el-col>
           <el-col :span="8">
-            <el-form ref="routerForm" :model="passwordInfo" required-asterisk label-width="auto"  :rules="passwordRules"
+            <el-form ref="routerForm" :model="passwordInfo" required-asterisk   :rules="passwordRules"
                      :label-position="position"
                      center>
               <el-form-item prop="oldPassword" label="原密码">
