@@ -33,7 +33,7 @@ export function UserInfo (data) {
  * @constructor
  */
 export function UserInfoById (url, data) {
-  url = routerBaseUrl(url)
+  url = userBaseUrl(url)
   if (data) {
     return httpGet(url, data)
   } else {
@@ -48,7 +48,7 @@ export function UserInfoById (url, data) {
  * @constructor
  */
 export function UserSetting (url, data) {
-  url = routerBaseUrl(url)
+  url = userBaseUrl(url)
   if (data) {
     return httpPost(url, data)
   } else {
@@ -56,7 +56,22 @@ export function UserSetting (url, data) {
   }
 }
 
-export function routerBaseUrl (url) {
+/**
+ * 修改用户密码
+ * @param url
+ * @param data
+ * @constructor
+ */
+export function UserSettingPasswordCurrent (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpPost(url, data)
+  } else {
+    return httpPost(url, null)
+  }
+}
+
+export function userBaseUrl (url) {
   if (url) {
     url = userServer + url
   } else {

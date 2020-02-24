@@ -3,8 +3,15 @@
  * @type {string}
  */
 export const userInfo = ''
+
 /**
- * 设置当前用户信息
+ * 修改用户信息
  * @type {string}
  */
-export const userSettingCurrent = '/setting/current'
+export const userUpdatePath = '/update/userInfo'
+
+/**
+ * 修改用户密码
+ * @type {string}
+ */
+export const userUpdatePasswordCurrentPath = '/update/password/current'
