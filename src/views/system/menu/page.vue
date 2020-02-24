@@ -4,7 +4,7 @@
       <div>
         <button type="button" class="el-button el-button--primary el-button--small">
           <i class="el-icon-plus"></i>
-          <span>新 增</span>
+          <span @click="handleAddNew">新 增</span>
         </button>
       </div>
       <div>
@@ -42,6 +42,53 @@
         label="菜单图标">
       </el-table-column>
     </el-table>
+    <el-dialog title="菜单信息" width="60%" :visible.sync="dialogFormVisible">
+      <el-form ref="menuInfoForm" :inline="true" label-width="auto" :model="menuInfo" required-asterisk
+               :rules="rules"
+               :label-position="position">
+        <el-row>
+          <el-col :md="12"
+                  :xs="24"
+                  :offset="0"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item label="名称" prop="name">
+              <el-input v-model="menuInfo.name" placeholder="名称" clearable></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12"
+                  :xs="24"
+                  :offset="0"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item label="路径" prop="url">
+              <el-input v-model="menuInfo.url" placeholder="路径" clearable></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :md="12"
+                  :xs="24"
+                  :offset="0"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item label="上级菜单" prop="parentId">
+              <el-cascader v-model="menuInfo.parentId" :options="menuTreeInfo" filterable
+                           clearable></el-cascader>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12"
+                  :xs="24"
+                  :offset="0"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item label="图标" prop="icon">
+              <el-input v-model="menuInfo.icon" placeholder="图标" clearable></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="innerVisible = true">保存</el-button>
+        <el-button @click="outerVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </d2-container>
 </template>
 <script>import { mapActions } from 'vuex'
@@ -51,7 +98,12 @@ import router from '@/router'
 export default {
   data () {
     return {
-      dataList: []
+      position: 'left',
+      dataList: [],
+      dialogFormVisible: true,
+      menuInfo: {},
+      rules: {},
+      menuTreeInfo: []
     }
   },
   mounted () {
@@ -95,6 +147,14 @@ export default {
           resolve(result.data)
         }
       })
+    },
+    /**
+     * 新增
+     */
+    handleAddNew () {
+      this.$refs.d2Crud.showDialog({
+        mode: 'add'
+      })
     }
   }
 }
@@ -113,5 +173,16 @@ export default {
     height: auto;
     overflow: hidden;
     margin-bottom: 5px;
+  }
+
+  .avue-form__menu--right {
+    text-align: right;
+  }
+
+  .avue-form__menu {
+    width: 100%;
+    padding: 5px 10px 0;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
   }
 </style>

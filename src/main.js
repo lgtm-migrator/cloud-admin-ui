@@ -6,7 +6,10 @@ import App from './App'
 import d2Admin from '@/plugin/d2admin'
 // store
 import store from '@/store/index'
-
+// element d2-curd
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+import D2Crud from '@d2-projects/d2-crud'
 // 菜单和路由设置
 import router from './router'
 import menuHeader from '@/menu/header'
@@ -15,7 +18,8 @@ import { frameInRoutes } from '@/router/routes'
 
 // 核心插件
 Vue.use(d2Admin)
-
+Vue.use(ElementUI)
+Vue.use(D2Crud)
 new Vue({
   router,
   store,
