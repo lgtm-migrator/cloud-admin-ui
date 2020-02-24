@@ -42,6 +42,15 @@ const frameIn = [
         },
         component: _import('system/router')
       },
+      {
+        path: 'menu',
+        name: 'menu',
+        meta: {
+          title: '菜单',
+          auth: true
+        },
+        component: _import('system/menu')
+      },
       // 演示页面
       {
         path: 'page1',

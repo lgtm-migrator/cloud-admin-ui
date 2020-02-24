@@ -31,3 +31,9 @@ export const userServer = '/v1/server/system/user'
  * 路由
  */
 export const routerServer = '/v1/server/system/router'
+
+/**
+ * 菜单
+ * @type {string}
+ */
+export const menuServer = '/v1/server/system/menu'

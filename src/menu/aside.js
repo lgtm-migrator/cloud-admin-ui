@@ -14,7 +14,8 @@ export default [
     title: '系统设置',
     icon: '',
     children: [
-      { path: '/router', title: '路由设置' }
+      { path: '/router', title: '路由管理' },
+      { path: '/menu', title: '菜单管理' }
     ]
   }
 ]
