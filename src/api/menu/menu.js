@@ -1,4 +1,4 @@
-import { httpGet } from '@api/http'
+import { httpGet, httpPost } from '@api/http'
 import { menuServer } from '../baseUrl'
 
 /**
@@ -14,6 +14,50 @@ export function MenusByParentId (url, data) {
     return httpGet(url, data)
   } else {
     return httpGet(url, null)
+  }
+}
+
+/**
+ * 树形菜单
+ * @constructor
+ */
+export function MenusTree (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpGet(url, data)
+  } else {
+    return httpGet(url, null)
+  }
+}
+
+/**
+ * 保存
+ * @param url
+ * @param data
+ * @constructor
+ */
+export function MenuSave (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpPost(url, data)
+  } else {
+    return httpPost(url, null)
+  }
+}
+
+/**
+ * 根据id修改菜单
+ * @param url
+ * @param data
+ * @returns {*}
+ * @constructor
+ */
+export function MenuUpdateById (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpPost(url, data)
+  } else {
+    return httpPost(url, null)
   }
 }
 
