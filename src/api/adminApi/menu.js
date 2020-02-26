@@ -20,3 +20,9 @@ export const MenuSavePath = '/save'
  * @type {string}
  */
 export const MenuUpdateByIdPath = '/update'
+
+/**
+ * 删除
+ * @type {string}
+ */
+export const MenuRemovePath = '/delete'

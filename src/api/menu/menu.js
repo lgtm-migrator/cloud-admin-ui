@@ -61,6 +61,22 @@ export function MenuUpdateById (url, data) {
   }
 }
 
+/**
+ * 删除
+ * @param url
+ * @param data
+ * @returns {*}
+ * @constructor
+ */
+export function MenuRemove (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpGet(url, data)
+  } else {
+    return httpGet(url, null)
+  }
+}
+
 export function userBaseUrl (url) {
   if (url) {
     url = menuServer + url

@@ -97,7 +97,7 @@
             <i class="el-icon-edit"></i>
             编辑
           </el-button>
-          <el-button type="text" size="mini">
+          <el-button type="text" @click="handleRemove(scope.row)" size="mini">
             <i class="el-icon-delete"></i>
             删除
           </el-button>
@@ -141,7 +141,8 @@
                   :offset="0"
                   style="padding-left:10px;padding-right:10px">
             <el-form-item label="上级菜单" prop="parentId">
-              <el-cascader v-model="menuInfo.parentId" :props="optionProps" :options="menuTreeInfo" filterable
+              <el-cascader v-model="menuInfo.parentId" :key="cascaderKey"
+                            :props="optionProps" :options="menuTreeInfo" filterable
                            clearable></el-cascader>
             </el-form-item>
           </el-col>
@@ -216,7 +217,9 @@
                   :offset="0"
                   style="padding-left:10px;padding-right:10px">
             <el-form-item label="上级菜单" prop="parentId">
-              <el-cascader v-model="viewInfo.parentId" :props="optionProps" placeholder="-1" :options="menuTreeInfo"
+              <el-cascader v-model="viewInfo.parentId" :key="Math.random()"
+                           :show-all-levels="false" :props="optionProps" placeholder="-1"
+                           :options="menuTreeInfo"
                            filterable
                            clearable></el-cascader>
             </el-form-item>
@@ -255,7 +258,13 @@
   </d2-container>
 </template>
 <script>import { mapActions } from 'vuex'
-import { MenuSavePath, MenusByParentIdPath, MenusTreePath, MenuUpdateByIdPath } from '@api/adminApi/menu'
+import {
+  MenuSavePath,
+  MenusByParentIdPath,
+  MenusTreePath,
+  MenuUpdateByIdPath,
+  MenuRemovePath
+} from '@api/adminApi/menu'
 import router from '@/router'
 
 export default {
@@ -267,6 +276,7 @@ export default {
       dialogViewVisible: false,
       viewInfo: {},
       menuInfo: {},
+      cascaderKey: '',
       rules: {
         name: [{
           required: true,
@@ -297,7 +307,7 @@ export default {
     _self.MenusTreeAll(0)
   },
   methods: {
-    ...mapActions('cloudAdmin/menu', ['menuList', 'menuTree', 'menuSave', 'menuUpdateById']),
+    ...mapActions('cloudAdmin/menu', ['menuList', 'menuTree', 'menuSave', 'menuUpdateById', 'menuRemove']),
     handleDialogClose (done) {
       let _self = this
       this.$confirm('确认关闭？')
@@ -332,7 +342,6 @@ export default {
       let _self = this
       let id = tree.id
       _self.loadNodeMap.set(id, { tree, treeNode, resolve })
-      console.log(_self.loadNodeMap)
       let url = MenusByParentIdPath + '/' + id
       _self.menuList({ url: url, data: '' }).then(result => {
         let code = result.errCode
@@ -420,9 +429,11 @@ export default {
           if (info.parentId == 0) {
             _self.getMenusByParentId(0)
           } else {
-            const { tree, treeNode, resolve } = _self.loadNodeMap.get(info.parentId)
-            if (tree) {
-              _self.loadNode(tree, treeNode, resolve)
+            if (_self.loadNodeMap.get(info.parentId)) {
+              const { tree, treeNode, resolve } = _self.loadNodeMap.get(info.parentId)
+              if (tree) {
+                _self.loadNode(tree, treeNode, resolve)
+              }
             }
           }
           _self.MenusTreeAll(0)
@@ -445,7 +456,6 @@ export default {
         info.parentId = 0
       }
       let url = MenuUpdateByIdPath + '/' + info.id
-      console.info(info.parentId)
       _self.menuUpdateById({ url: url, data: info }).then(result => {
         let code = result.errCode
         if (code === 514) {
@@ -458,10 +468,15 @@ export default {
           if (info.parentId == 0) {
             _self.getMenusByParentId(0)
           } else {
-            const { tree, treeNode, resolve } = _self.loadNodeMap.get(info.parentId)
-            if (tree) {
-              _self.loadNode(tree, treeNode, resolve)
-            }
+            // if (_self.loadNodeMap.get(info.parentId)) {
+            //   const { tree, treeNode, resolve } = _self.loadNodeMap.get(info.parentId)
+            //   if (tree) {
+            //     _self.loadNode(tree, treeNode, resolve)
+            //   }
+            // }
+            this.$set(this.$refs.tableDom.store.states.lazyTreeNodeMap, info.id, [])
+            const { tree, treeNode, resolve } = this.loadNodeMap.get(info.id)
+            _self.loadNode(tree, treeNode, resolve)
           }
           _self.MenusTreeAll(0)
           _self.menuInfo = {}
@@ -493,6 +508,36 @@ export default {
       _self.menuInfo = info
       _self.dialogFormVisible = true
       _self.isUpdate = true
+    },
+    /**
+     * 删除
+     */
+    handleRemove (row) {
+      let _self = this
+      let info = JSON.parse(JSON.stringify(row))
+      _self.$confirm('确认删除？')
+        .then(_ => {
+          let id = info.id
+          let url = MenuRemovePath + '/' + id
+          _self.menuRemove({ url: url, data: null }).then(result => {
+            let code = result.errCode
+            if (code !== 200) {
+              _self.$message.error(result.data)
+            } else {
+              if (info.parentId == 0) {
+                _self.getMenusByParentId(0)
+              } else {
+                this.$set(this.$refs.tableDom.store.states.lazyTreeNodeMap, info.parentId, [])
+                const { tree, treeNode, resolve } = this.loadNodeMap.get(info.parentId)
+                _self.loadNode(tree, treeNode, resolve)
+              }
+              this.cascaderKey = String(new Date().getTime())
+              _self.MenusTreeAll(0)
+            }
+          })
+        })
+        .catch(_ => {
+        })
     },
     /**
      *
