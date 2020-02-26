@@ -15,7 +15,8 @@ export default [
     icon: '',
     children: [
       { path: '/router', title: '路由管理' },
-      { path: '/menu', title: '菜单管理' }
+      { path: '/menu', title: '菜单管理' },
+      { path: '/permission', title: '权限管理' }
     ]
   }
 ]

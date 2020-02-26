@@ -37,3 +37,9 @@ export const routerServer = '/v1/server/system/router'
  * @type {string}
  */
 export const menuServer = '/v1/server/system/menu'
+
+/**
+ * 权限
+ * @type {string}
+ */
+export const permissionServer = '/v1/server/system/permission'

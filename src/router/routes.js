@@ -51,6 +51,15 @@ const frameIn = [
         },
         component: _import('system/menu')
       },
+      {
+        path: 'permission',
+        name: 'permission',
+        meta: {
+          title: '权限',
+          auth: true
+        },
+        component: _import('system/permission')
+      },
       // 演示页面
       {
         path: 'page1',
