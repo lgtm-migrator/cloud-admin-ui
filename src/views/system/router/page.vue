@@ -207,8 +207,12 @@ export default {
       return JSON.stringify(row.filters)
     },
     handleSizeChange (val) {
+      this.pages.pageSize = val
+      this.getRouters()
     },
     handleCurrentChange (Page) {
+      this.pages.page = Page
+      this.getRouters()
     },
     /**
      * 新增
