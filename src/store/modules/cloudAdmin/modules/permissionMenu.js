@@ -1,17 +1,17 @@
-import { PermissionSave } from '@api/permission/permission'
+import { PermissionMenByMenuId } from '@api/permission/permissionMenu'
 
 export default {
   namespaced: true,
   actions: {
     /**
-     * 权限新增
+     * 根据菜单获取权限
      * @param dispatch
      * @param url
      * @param data
      */
-    permissionSave ({ dispatch }, { url, data } = {}) {
+    permissionMenuByMenuId ({ dispatch }, { url, data } = {}) {
       return new Promise((resolve, reject) => {
-        PermissionSave(url, data).then(result => {
+        PermissionMenByMenuId(url, data).then(result => {
           resolve(result)
         }).catch(error => {
           reject(error)

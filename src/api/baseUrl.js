@@ -43,3 +43,8 @@ export const menuServer = '/v1/server/system/menu'
  * @type {string}
  */
 export const permissionServer = '/v1/server/system/permission'
+/**
+ * 权限菜单
+ * @type {string}
+ */
+export const permissionMenuServer = '/v1/server/system/permissionmenu'
