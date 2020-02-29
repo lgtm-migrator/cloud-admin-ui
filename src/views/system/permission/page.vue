@@ -14,7 +14,10 @@
             node-key="id"
             lazy
             show-checkbox
-            @check="handleNodeCheckEvent">
+            check-strictly
+            :highlight-current='true'
+            @check="handleNodeCheckEvent"
+            @check-change="handleNodeChangeCheckEvent">
           </el-tree>
         </div>
       </el-card>
@@ -33,7 +36,8 @@
                            align="center"></el-table-column>
           <el-table-column prop="systemMenuVO.description" label="所属菜单" sortable resizable :show-overflow-tooltip="true"
                            align="center"></el-table-column>
-          <el-table-column prop="systemPermissionVO.createTime" label="创建时间" sortable resizable :show-overflow-tooltip="true"
+          <el-table-column prop="systemPermissionVO.createTime" label="创建时间" sortable resizable
+                           :show-overflow-tooltip="true"
                            align="center"></el-table-column>
           <el-table-column
             label="操作"
@@ -113,13 +117,64 @@
         <el-button @click="handleDialogCloseEvent">取 消</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="权限信息" :visible.sync="dialogPermissionViewFormVisible">
+      <el-form :inline="true" label-width="auto" :model="permissionViewInfo"
+               :label-position="position"
+               ref="permissionForm" required-asterisk
+               disabled>
+        <el-row>
+          <el-col :md="12"
+                  :xs="24"
+                  :offset="0"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item required label="名称" prop="name">
+              <el-input v-model="permissionViewInfo.name" clearable></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12"
+                  :xs="24"
+                  :offset="0"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item label="英文名称" prop="enname">
+              <el-input v-model="permissionViewInfo.enname" clearable></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :md="12"
+                  :xs="24"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item label="所属菜单" prop="menu">
+              <el-input disabled v-model="permissionViewInfo.menuName" clearable></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12"
+                  :xs="24"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item required label="权限标识" prop="url">
+              <el-input v-model="permissionViewInfo.url" clearable></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :md="24"
+                  :xs="24"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item label="说明" prop="description">
+              <el-input type="textarea" v-model="permissionViewInfo.description" clearable></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </el-dialog>
   </d2-container>
 </template>
 <script>import { mapActions } from 'vuex'
 import { MenusByParentIdPath } from '@api/adminApi/menu'
-import { PermissionSavePath } from '@api/adminApi/permission'
+import { PermissionSavePath, PermissionUpdatePath, PermissionUnBindingPath } from '@api/adminApi/permission'
 import { PermissionMenuByMenuIdPath } from '@api/adminApi/permissionMenu'
 import router from '@/router'
+import { MessageBox } from 'element-ui'
 
 export default {
   data () {
@@ -133,8 +188,10 @@ export default {
       datamenuList: [],
       currentNode: '',
       dialogPermissionFormVisible: false,
+      dialogPermissionViewFormVisible: false,
       position: 'left',
       permissionInfo: {},
+      permissionViewInfo: {},
       isUpdate: false,
       rules: {
         name: [{
@@ -148,7 +205,9 @@ export default {
           trigger: 'blur'
         }]
       },
-      permissionList: []
+      permissionList: [],
+      currentCheckedId: {},
+      i: 0
     }
   },
   mounted () {
@@ -157,7 +216,7 @@ export default {
   },
   methods: {
     ...mapActions('cloudAdmin/menu', ['menuList']),
-    ...mapActions('cloudAdmin/permission', ['permissionSave']),
+    ...mapActions('cloudAdmin/permission', ['permissionSave', 'permissionUpdate', 'permissionUnBinding']),
     ...mapActions('cloudAdmin/permissionMenu', ['permissionMenuByMenuId']),
     /**
      * 获取菜单集
@@ -229,6 +288,22 @@ export default {
       }
     },
     /**
+     * 选中change
+     */
+    handleNodeChangeCheckEvent (data, checked, node) {
+      this.i++
+      if (this.i % 2 === 0) {
+        if (checked) {
+          this.$refs.tree.setCheckedNodes([])
+          this.$refs.tree.setCheckedNodes([data])
+          // 交叉点击节点
+        } else {
+          this.$refs.tree.setCheckedNodes([])
+          // 点击已经选中的节点，置空
+        }
+      }
+    },
+    /**
      * 树形节点点击
      */
     handleNodeCheckEvent (data, node) {
@@ -239,6 +314,7 @@ export default {
         return null
       }
       let id = data.id
+      _self.currentCheckedId = id
       _self.permissionMenuByMenuIdHandler(id)
     },
     /**
@@ -249,7 +325,7 @@ export default {
       this.$refs.permissionForm.validate((valid) => {
         if (valid) {
           if (_self.isUpdate) {
-
+            _self.update()
           } else {
             _self.save()
           }
@@ -277,20 +353,98 @@ export default {
       }
     },
     /**
+     * 表格查看
+     */
+    handlerView (row) {
+      let _self = this
+      let menu = row.systemMenuVO
+      let permission = row.systemPermissionVO
+      _self.permissionViewInfo.name = permission.name
+      _self.permissionViewInfo.enname = permission.enname
+      _self.permissionViewInfo.menuName = menu.name
+      _self.permissionViewInfo.url = permission.url
+      _self.permissionViewInfo.description = permission.description
+      _self.dialogPermissionViewFormVisible = true
+    },
+    /**
+     *编辑
+     */
+    handleEdit (row) {
+      let _self = this
+      let menu = row.systemMenuVO
+      let permission = row.systemPermissionVO
+      _self.permissionInfo = {
+        name: permission.name,
+        enname: permission.enname,
+        menuName: menu.name,
+        url: permission.url,
+        description: permission.description,
+        id: permission.id
+      }
+      _self.isUpdate = true
+      _self.dialogPermissionFormVisible = true
+    },
+    /**
+     * 删除
+     */
+    handleRemove (row) {
+      let _self = this
+      MessageBox.confirm('是否删除该数据', '删除', {
+        type: 'warning'
+      }).then(() => {
+        let id = row.systemPermissionVO.id
+        let menuId = row.systemMenuVO.id
+        _self.remove(id, menuId)
+      })
+    },
+    /**
      * 保存
      */
     save () {
       let _self = this
       let info = JSON.parse(JSON.stringify(_self.permissionInfo))
-      let url = '/' + PermissionSavePath
+      let url = PermissionSavePath
       _self.permissionSave({ url: url, data: info }).then(result => {
         if (result.errCode !== 200) {
           this.$message.error(result.data)
         } else {
           _self.dialogPermissionFormVisible = false
           _self.permissionInfo = {}
+          _self.permissionMenuByMenuIdHandler(_self.currentCheckedId)
         }
       })
+    },
+    update () {
+      let _self = this
+      let info = JSON.parse(JSON.stringify(_self.permissionInfo))
+      let url = PermissionUpdatePath + '/' + info.id
+      _self.permissionUpdate({ url: url, data: info }).then(result => {
+        if (result.errCode !== 200) {
+          this.$message.error(result.data)
+        } else {
+          _self.dialogPermissionFormVisible = false
+          _self.permissionInfo = {}
+          _self.permissionMenuByMenuIdHandler(_self.currentCheckedId)
+        }
+      })
+    },
+    /**
+     * 删除
+     */
+    remove (id, menuId) {
+      let _self = this
+      if (id && menuId) {
+        let url = PermissionUnBindingPath + '/' + id + '/' + menuId
+        _self.permissionUnBinding({ url: url, data: null }).then(result => {
+          if (result.errCode !== 200) {
+            this.$message.error(result.data)
+          } else {
+            _self.dialogPermissionFormVisible = false
+            _self.permissionInfo = {}
+            _self.permissionMenuByMenuIdHandler(_self.currentCheckedId)
+          }
+        })
+      }
     }
   }
 }
