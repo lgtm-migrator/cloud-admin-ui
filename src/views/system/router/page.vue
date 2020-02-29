@@ -40,8 +40,14 @@
           <el-table-column label="操作" sortable resizable :show-overflow-tooltip="true"
                            align="center">
             <template slot-scope="scope">
-              <el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-              <el-button size="mini" type="danger" @click="handleRemove(scope.$index,scope.row)">删除</el-button>
+              <el-button type="text"  @click="handleEdit(scope.$index, scope.row)" size="mini">
+                <i class="el-icon-edit"></i>
+                编辑
+              </el-button>
+              <el-button type="text" @click="handleRemove(scope.$index,scope.row)" size="mini">
+                <i class="el-icon-delete"></i>
+                删除
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
