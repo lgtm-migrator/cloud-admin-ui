@@ -60,6 +60,15 @@ const frameIn = [
         },
         component: _import('system/permission')
       },
+      {
+        path: 'role',
+        name: 'role',
+        meta: {
+          title: '角色',
+          auth: true
+        },
+        component: _import('system/role')
+      },
       // 演示页面
       {
         path: 'page1',

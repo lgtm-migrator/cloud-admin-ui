@@ -48,3 +48,9 @@ export const permissionServer = '/v1/server/system/permission'
  * @type {string}
  */
 export const permissionMenuServer = '/v1/server/system/permissionmenu'
+
+/**
+ * 角色
+ * @type {string}
+ */
+export const roleServer = '/v1/server/system/role'

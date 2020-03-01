@@ -1,0 +1,299 @@
+<template>
+  <d2-container class="page">
+    <div class="avue-crud__menu">
+      <div>
+        <button type="button" @click="handleAdd" class="el-button el-button--primary el-button--small">
+          <i class="el-icon-edit"></i>
+          <span>添 加</span>
+        </button>
+      </div>
+      <div>
+        <button type="button" class="el-button el-tooltip el-button--default el-button--small is-circle"
+                aria-describedby="el-tooltip-177" tabindex="0">
+          <i class="el-icon-refresh"></i>
+        </button>
+      </div>
+    </div>
+    <el-row :gutter="2">
+      <el-col :xs="10">
+        <el-table :data="roleList" style="width: 100%;" border :fit="true"
+                  highlight-current-row
+                  :header-cell-style="{'text-align':'center'}">
+          <el-table-column
+            type="index"
+            label="序号">
+          </el-table-column>
+          <el-table-column
+            prop="name"
+            label="角色名称"
+            sortable
+            resizable
+            :show-overflow-tooltip="true"
+            align="center">
+          </el-table-column>
+          <el-table-column
+            prop="enname"
+            label="角色标识"
+            sortable
+            resizable
+            :show-overflow-tooltip="true"
+            align="center">
+          </el-table-column>
+          <el-table-column
+            prop="description"
+            label="角色说明"
+            sortable
+            resizable
+            :show-overflow-tooltip="true"
+            align="center">
+          </el-table-column>
+          <el-table-column
+            prop="createTime"
+            label="创建时间"
+            sortable
+            resizable
+            :show-overflow-tooltip="true"
+            align="center">
+          </el-table-column>
+          <el-table-column
+            label="操作"
+            sortable
+            resizable
+            :show-overflow-tooltip="true"
+            align="center">
+            <template slot-scope="scope">
+              <el-button type="text" @click="handlerView(scope.row)" size="mini">
+                <i class="el-icon-view"></i>
+                查看
+              </el-button>
+              <el-button type="text" @click="handleEdit(scope.row)" size="mini">
+                <i class="el-icon-edit"></i>
+                编辑
+              </el-button>
+              <el-button type="text" @click="handleRemove(scope.row)" size="mini">
+                <i class="el-icon-delete"></i>
+                删除
+              </el-button>
+              <el-button type="text" @click="handlePermission(scope.row)" size="mini">
+                <i class="el-icon-plus"></i>
+                权限
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-pagination align='left'
+                       @size-change="handleSizeChange"
+                       @current-change="handleCurrentChange"
+                       :current-page="pages.page"
+                       :page-sizes="[10, 20, 50, 100]"
+                       :page-size="pages.pageSize"
+                       layout="total, sizes, prev, pager, next, jumper"
+                       :total="pages.total">
+        </el-pagination>
+      </el-col>
+    </el-row>
+    <el-dialog title="角色信息" :before-close="handleDialogClose" width="60%" :visible.sync="dialogRoleFormVisible">
+      <el-form ref="roleInfoForm" lable-width="auto" :model="roleInfoForm" required-asterisk
+               :rules="rules"
+               :label-position="position"
+               :disabled="isDisabled">
+        <el-row :span="24">
+          <el-form-item required label="角色名称" prop="name">
+            <el-input v-model.number="roleInfoForm.name" autosize
+                      placeholder="请输入角色名称"></el-input>
+          </el-form-item>
+          <el-form-item required label="角色标识" prop="enname">
+            <el-input v-model.number="roleInfoForm.enname" autosize
+                      placeholder="请输入角色标识"></el-input>
+          </el-form-item>
+          <el-form-item label="角色描述" prop="description">
+            <el-input v-model.number="roleInfoForm.description" autosize
+                      type="textarea" placeholder="请输入角色描述"></el-input>
+          </el-form-item>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button v-if="!isDisabled" type="primary" @click="handlerSave"><i class="el-icon-circle-plus-outline"></i>保存
+        </el-button>
+        <el-button v-if="!isDisabled" @click="handleDialogClose"><i class="el-icon-circle-close"></i>取 消</el-button>
+      </div>
+    </el-dialog>
+  </d2-container>
+</template>
+<script> import { mapActions } from 'vuex'
+import { RoleListPath, RoleSavePath, RoleUpdatePath, RoleRemovePath } from '@api/adminApi/role'
+import { MessageBox } from 'element-ui'
+
+export default {
+  data: function () {
+    return {
+      // 分页
+      pages: {
+        page: 1,
+        pageSize: 10,
+        total: 0
+      },
+      roleList: [],
+      dialogRoleFormVisible: false,
+      roleInfoForm: {},
+      rules: {
+        name: [{
+          required: true,
+          message: '请输入角色名称',
+          trigger: 'blur'
+        }],
+        enname: [{
+          required: true,
+          message: '请输入角色标识',
+          trigger: 'blur'
+        }]
+      },
+      position: 'left',
+      isUpdate: false,
+      isDisabled: false
+    }
+  },
+  mounted () {
+    this.rolePageList()
+  },
+  methods: {
+    ...mapActions('cloudAdmin/role', ['roleListPage', 'roleSave', 'roleUpdate', 'roleRemove']),
+    rolePageList () {
+      let _self = this
+      let url = RoleListPath + '/' + _self.pages.page + '/' + _self.pages.pageSize
+      _self.roleListPage({ url: url, data: null }).then(result => {
+        let code = result.errCode
+        if (code !== 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.roleList = result.data.list
+          _self.pages.total = result.data.total
+        }
+      })
+    },
+    handleSizeChange (val) {
+      this.pages.pageSize = val
+      this.rolePageList()
+    },
+    handleCurrentChange (Page) {
+      this.pages.page = Page
+      this.rolePageList()
+    },
+    handleDialogClose () {
+      let _self = this
+      _self.roleInfoForm = {}
+      _self.dialogRoleFormVisible = false
+    },
+    handleAdd () {
+      let _self = this
+      _self.roleInfoForm = {}
+      _self.dialogRoleFormVisible = true
+      _self.isDisabled = false
+      _self.isUpdate = false
+    },
+    handlerSave () {
+      let _self = this
+      this.$refs.roleInfoForm.validate((valid) => {
+        if (valid) {
+          if (_self.isUpdate) {
+            _self.update()
+          } else {
+            _self.save()
+          }
+        } else {
+          // 校验失败
+          // 登录表单校验失败
+          this.$message.error('表单校验失败，请检查')
+        }
+      })
+    },
+    handlerView (row) {
+      let _self = this
+      _self.roleInfoForm = row
+      _self.isDisabled = true
+      _self.dialogRoleFormVisible = true
+    },
+    handleEdit (row) {
+      let _self = this
+      _self.roleInfoForm = row
+      _self.isDisabled = false
+      _self.dialogRoleFormVisible = true
+      _self.isUpdate = true
+    },
+    handleRemove (row) {
+      let _self = this
+      let id = row.id
+      MessageBox.confirm('是否删除该数据', '删除', {
+        type: 'warning'
+      }).then(() => {
+        _self.remove(id)
+      })
+    },
+    handlePermission (row) {
+
+    },
+    save () {
+      let _self = this
+      let info = JSON.parse(JSON.stringify(_self.roleInfoForm))
+      let url = RoleSavePath
+      _self.roleSave({ url: url, data: info }).then(result => {
+        let code = result.errCode
+        if (code !== 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.roleInfoForm = {}
+          _self.dialogRoleFormVisible = false
+          _self.rolePageList()
+        }
+      })
+    },
+    update () {
+      let _self = this
+      let info = JSON.parse(JSON.stringify(_self.roleInfoForm))
+      let url = RoleUpdatePath + '/' + info.id
+      _self.roleUpdate({ url: url, data: info }).then(result => {
+        let code = result.errCode
+        if (code !== 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.roleInfoForm = {}
+          _self.dialogRoleFormVisible = false
+          _self.rolePageList()
+        }
+      })
+    },
+    remove (id) {
+      let _self = this
+      if (id) {
+        let url = RoleRemovePath + '/' + id
+        _self.roleRemove({ url: url, data: null }).then(result => {
+          let code = result.errCode
+          if (code !== 200) {
+            _self.$message.error(result.data)
+          } else {
+            _self.roleInfoForm = {}
+            _self.dialogRoleFormVisible = false
+            _self.rolePageList()
+          }
+        })
+      }
+    }
+  }
+}
+</script>
+<style>
+  .avue-crud__menu {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    position: relative;
+    width: 100%;
+    min-height: 40px;
+    height: auto;
+    overflow: hidden;
+    margin-bottom: 5px;
+  }
+</style>
