@@ -1,4 +1,4 @@
-import { RoleSave, RoleListPage, RoleUpdate,RoleRemove } from '@api/role/role'
+import { RoleSave, RoleListPage, RoleUpdate, RoleRemove } from '@api/role/role'
 
 export default {
   namespaced: true,

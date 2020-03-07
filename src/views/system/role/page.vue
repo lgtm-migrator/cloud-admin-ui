@@ -123,7 +123,7 @@
       <div style="max-height: 400px;
     overflow-y: auto;">
         <el-tree
-          ref="treeRef"
+          ref="tree"
           :data="permissionMenu"
           show-checkbox
           node-key="id"
@@ -134,7 +134,7 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="handleUpdatePermission" type="primary">更新
         </el-button>
-        <el-button>取 消</el-button>
+        <el-button @click="handleUpdatePermissionDialogClose">取 消</el-button>
       </div>
     </el-dialog>
   </d2-container>
@@ -142,6 +142,7 @@
 <script> import { mapActions } from 'vuex'
 import { RoleListPath, RoleSavePath, RoleUpdatePath, RoleRemovePath } from '@api/adminApi/role'
 import { PermissionMenuAllPath } from '@api/adminApi/permissionMenu'
+import { RolePermissionSavePath, RolePermissionPermissionIdsPath } from '@api/adminApi/rolePermission'
 import { MessageBox } from 'element-ui'
 
 export default {
@@ -177,7 +178,8 @@ export default {
         children: 'children',
         label: 'name'
       },
-      currentRow: null
+      currentRow: null,
+      permissionIds: []
     }
   },
   mounted () {
@@ -186,6 +188,7 @@ export default {
   methods: {
     ...mapActions('cloudAdmin/role', ['roleListPage', 'roleSave', 'roleUpdate', 'roleRemove']),
     ...mapActions('cloudAdmin/permissionMenu', ['permissionMenuAll']),
+    ...mapActions('cloudAdmin/rolePermission', ['rolePermissionSave', 'rolePermissionIds']),
     rolePageList () {
       let _self = this
       let url = RoleListPath + '/' + _self.pages.page + '/' + _self.pages.pageSize
@@ -268,7 +271,6 @@ export default {
       let _self = this
       _self.currentrow = row
       _self.getPermissionMenuAll()
-      _self.dialogPermissionFormVisible = true
     },
     save () {
       let _self = this
@@ -328,6 +330,7 @@ export default {
           _self.$message.error(result.data)
         } else {
           _self.permissionMenu = result.data
+          _self.getPermissionIdsByRoleId(_self.currentrow.id)
         }
       })
     },
@@ -335,14 +338,21 @@ export default {
      * 属性根据key设置选中的node
      */
     setCheckedKeys () {
-
+      let _self = this
+      let permissions = _self.permissionIds
+      if (permissions.length > 0) {
+        _self.dialogPermissionFormVisible = true
+        this.$nextTick(() => {
+          _self.$refs.tree.setCheckedKeys(permissions, true)
+        })
+      }
     },
     /**
      * 获取当前选中
      */
     getCheckeds () {
       let _self = this
-      return _self.$refs.treeRef.getCheckedNodes(true)
+      return _self.$refs.tree.getCheckedNodes(true)
     },
 
     /**
@@ -362,6 +372,13 @@ export default {
       _self.updatePermissionForRole(permissionId)
     },
     /**
+     * 关闭
+     */
+    handleUpdatePermissionDialogClose () {
+      let _self = this
+      _self.dialogPermissionFormVisible = false
+    },
+    /**
      * 更新角色权限
      *
      */
@@ -370,6 +387,34 @@ export default {
       console.info(_self.currentrow)
       if (permissionIds.length <= 0) {
         _self.dialogPermissionFormVisible = false
+      }
+      let url = RolePermissionSavePath + '/' + _self.currentrow.id
+      _self.rolePermissionSave({ url: url, data: permissionIds }).then(result => {
+        let code = result.errCode
+        if (code !== 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.dialogPermissionFormVisible = false
+        }
+      })
+    },
+    /**
+     * 根据角色id获取权限id
+     * @param id
+     */
+    getPermissionIdsByRoleId (id) {
+      let _self = this
+      if (id) {
+        let url = RolePermissionPermissionIdsPath + '/' + id
+        _self.rolePermissionIds({ url: url, data: null }).then(result => {
+          let code = result.errCode
+          if (code !== 200) {
+            _self.$message.error(result.data)
+          } else {
+            _self.permissionIds = result.data
+            _self.setCheckedKeys()
+          }
+        })
       }
     }
   }
