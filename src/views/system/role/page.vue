@@ -118,10 +118,30 @@
         <el-button v-if="!isDisabled" @click="handleDialogClose"><i class="el-icon-circle-close"></i>取 消</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="权限信息" :before-close="handlePermissionDialogClose" width="60%"
+               :visible.sync="dialogPermissionFormVisible">
+      <div style="max-height: 400px;
+    overflow-y: auto;">
+        <el-tree
+          ref="treeRef"
+          :data="permissionMenu"
+          show-checkbox
+          node-key="id"
+          :props="defaultProps"
+          default-expand-all>
+        </el-tree>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="handleUpdatePermission" type="primary">更新
+        </el-button>
+        <el-button>取 消</el-button>
+      </div>
+    </el-dialog>
   </d2-container>
 </template>
 <script> import { mapActions } from 'vuex'
 import { RoleListPath, RoleSavePath, RoleUpdatePath, RoleRemovePath } from '@api/adminApi/role'
+import { PermissionMenuAllPath } from '@api/adminApi/permissionMenu'
 import { MessageBox } from 'element-ui'
 
 export default {
@@ -135,6 +155,7 @@ export default {
       },
       roleList: [],
       dialogRoleFormVisible: false,
+      dialogPermissionFormVisible: false,
       roleInfoForm: {},
       rules: {
         name: [{
@@ -150,7 +171,13 @@ export default {
       },
       position: 'left',
       isUpdate: false,
-      isDisabled: false
+      isDisabled: false,
+      permissionMenu: [],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
+      currentRow: null
     }
   },
   mounted () {
@@ -158,6 +185,7 @@ export default {
   },
   methods: {
     ...mapActions('cloudAdmin/role', ['roleListPage', 'roleSave', 'roleUpdate', 'roleRemove']),
+    ...mapActions('cloudAdmin/permissionMenu', ['permissionMenuAll']),
     rolePageList () {
       let _self = this
       let url = RoleListPath + '/' + _self.pages.page + '/' + _self.pages.pageSize
@@ -183,6 +211,10 @@ export default {
       let _self = this
       _self.roleInfoForm = {}
       _self.dialogRoleFormVisible = false
+    },
+    handlePermissionDialogClose () {
+      let _self = this
+      _self.dialogPermissionFormVisible = false
     },
     handleAdd () {
       let _self = this
@@ -229,8 +261,14 @@ export default {
         _self.remove(id)
       })
     },
+    /**
+     * 编辑权限
+     */
     handlePermission (row) {
-
+      let _self = this
+      _self.currentrow = row
+      _self.getPermissionMenuAll()
+      _self.dialogPermissionFormVisible = true
     },
     save () {
       let _self = this
@@ -276,6 +314,62 @@ export default {
             _self.rolePageList()
           }
         })
+      }
+    },
+    /**
+     * 获取菜单权限集
+     */
+    getPermissionMenuAll () {
+      let _self = this
+      let url = PermissionMenuAllPath
+      _self.permissionMenuAll({ url: url, data: null }).then(result => {
+        let code = result.errCode
+        if (code !== 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.permissionMenu = result.data
+        }
+      })
+    },
+    /**
+     * 属性根据key设置选中的node
+     */
+    setCheckedKeys () {
+
+    },
+    /**
+     * 获取当前选中
+     */
+    getCheckeds () {
+      let _self = this
+      return _self.$refs.treeRef.getCheckedNodes(true)
+    },
+
+    /**
+     * 更新角色权限
+     */
+    handleUpdatePermission () {
+      let _self = this
+      let permissionMenu = _self.getCheckeds()
+      let permissionId = []
+      if (permissionMenu.length > 0) {
+        permissionMenu.filter((item, i) => {
+          if (item.type == 1) {
+            permissionId.push(item.id)
+          }
+        })
+      }
+      _self.updatePermissionForRole(permissionId)
+    },
+    /**
+     * 更新角色权限
+     *
+     */
+    updatePermissionForRole (permissionIds) {
+      let _self = this
+      console.info(_self.currentrow)
+      if (permissionIds.length <= 0) {
+        _self.dialogPermissionFormVisible = false
       }
     }
   }
