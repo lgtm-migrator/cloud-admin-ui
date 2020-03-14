@@ -60,3 +60,9 @@ export const roleServer = '/v1/server/system/role'
  * @type {string}
  */
 export const rolePermissionServer = '/v1/server/system/rolepermission'
+
+/**
+ * 组织
+ * @type {string}
+ */
+export const deptServer = '/v1/server/system/dept'

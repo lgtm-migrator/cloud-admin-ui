@@ -16,7 +16,13 @@ export default [
     children: [
       { path: '/router', title: '路由管理' },
       { path: '/menu', title: '菜单管理' },
-      { path: '/permission', title: '权限管理' },
+      { path: '/permission', title: '权限管理' }
+    ]
+  }, {
+    title: '用户中心',
+    icon: '',
+    children: [
+      { path: '/dept', title: '组织管理' },
       { path: '/role', title: '角色管理' }
     ]
   }

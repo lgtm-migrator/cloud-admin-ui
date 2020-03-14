@@ -69,6 +69,15 @@ const frameIn = [
         },
         component: _import('system/role')
       },
+      {
+        path: 'dept',
+        name: 'dept',
+        meta: {
+          title: '组织',
+          auth: true
+        },
+        component: _import('system/dept')
+      },
       // 演示页面
       {
         path: 'page1',

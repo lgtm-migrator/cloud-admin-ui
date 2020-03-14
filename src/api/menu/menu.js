@@ -1,5 +1,5 @@
 import { httpGet, httpPost } from '@api/http'
-import { menuServer } from '../baseUrl'
+import { menuServer } from '@api/baseUrl'
 
 /**
  * 获取菜单
