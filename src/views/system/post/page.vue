@@ -41,7 +41,7 @@
                 <i class="el-icon-delete"></i>
                 删除
               </el-button>
-              <el-button type="text"  size="mini">
+              <el-button type="text" @click="handlePostDept(scope.$index,scope.row)" size="mini">
                 <i class="el-icon-plus"></i>
                 组织
               </el-button>
@@ -84,10 +84,28 @@
         <el-button plain type="primary" @click="handleSave">保存</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="组织信息" :visible.sync="dialogDeptFormVisible" center>
+      <el-tree :data="treeData"
+               show-checkbox
+               ref="tree"
+               node-key="id"
+               :props="treeProps"
+               :highlight-current='true'
+               default-expand-all
+      >
+      </el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button plain @click="dialogDeptFormVisible = false">取 消</el-button>
+        <el-button plain type="primary" @click="handlePostDeptSave">确定</el-button>
+      </div>
+    </el-dialog>
   </d2-container>
 </template>
 <script> import { mapActions } from 'vuex'
-import { PostSavePath, PostGetPagePath, PostDeletePath, PostUpdatePath } from '@/api/adminApi/post'
+import { PostDeletePath, PostGetPagePath, PostSavePath, PostUpdatePath } from '@/api/adminApi/post'
+import { PostDeptBindingPath, PostDeptGetBindingIdPath } from '@/api/adminApi/postDept'
+import { DeptTreePath } from '@/api/adminApi/dept'
+import { MessageBox } from 'element-ui'
 
 export default {
   data: function () {
@@ -95,6 +113,11 @@ export default {
       searchPostForm: {},
       position: 'left',
       postList: [],
+      treeData: [],
+      treeProps: {
+        children: 'children',
+        label: 'name'
+      },
       // 分页
       pages: {
         page: 1,
@@ -117,7 +140,10 @@ export default {
           message: '请输入岗位名称',
           trigger: 'blur'
         }]
-      }
+      },
+      dialogDeptFormVisible: false,
+      currentPostId: '',
+      bindingDeptList: []
     }
   },
   mounted () {
@@ -126,6 +152,8 @@ export default {
   },
   methods: {
     ...mapActions('cloudAdmin/post', ['postSave', 'postGetPage', 'postDelete', 'postUpdate']),
+    ...mapActions('cloudAdmin/postDept', ['postDeptGetBindingId', 'postDeptBinding']),
+    ...mapActions('cloudAdmin/dept', ['deptTree']),
     /**
      * 岗位集
      */
@@ -135,7 +163,7 @@ export default {
       let params = {}
       _self.postGetPage({ url: url, data: params }).then(result => {
         let code = result.errCode
-        if (code !== 200) {
+        if (code != 200) {
           _self.$message.error(result.data)
         } else {
           _self.postList = result.data.list
@@ -174,7 +202,7 @@ export default {
     },
     handleRemove (index, row) {
       let _self = this
-      _self.$confirm('是否删除当前数据, 是否继续?', '提示', {
+      MessageBox.confirm('是否删除当前数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -184,11 +212,25 @@ export default {
       }).catch(() => {
       })
     },
+    handlePostDept (index, row) {
+      let _self = this
+      _self.currentPostId = row.id
+      _self.getBinding(row.id)
+    },
     handleEdit (index, row) {
       let _self = this
       _self.postInfo = JSON.parse(JSON.stringify(row))
       _self.dialogFormVisible = true
       _self.isUpdate = true
+    },
+    handlePostDeptSave () {
+      let _self = this
+      let keys = _self.$refs.tree.getCheckedKeys(false)
+      if (!keys.length <= 0) {
+        _self.bindingDept(_self.currentPostId, keys)
+      } else {
+        _self.dialogDeptFormVisible = false
+      }
     },
     save () {
       let _self = this
@@ -196,7 +238,7 @@ export default {
       let url = PostSavePath
       _self.postSave({ url: url, data: params }).then(result => {
         let code = result.errCode
-        if (code !== 200) {
+        if (code != 200) {
           _self.$message.error(result.data)
         } else {
           _self.dialogFormVisible = false
@@ -211,7 +253,7 @@ export default {
         let url = PostDeletePath + '/' + id
         _self.postDelete({ url: url, data: null }).then(result => {
           let code = result.errCode
-          if (code !== 200) {
+          if (code != 200) {
             _self.$message.error(result.data)
           } else {
             _self.dialogFormVisible = false
@@ -228,12 +270,58 @@ export default {
         let url = PostUpdatePath + '/' + params.id
         _self.postUpdate({ url: url, data: params }).then(result => {
           let code = result.errCode
-          if (code !== 200) {
+          if (code != 200) {
             _self.$message.error(result.data)
           } else {
             _self.dialogFormVisible = false
             _self.postInfo = {}
             _self.posts()
+          }
+        })
+      }
+    },
+    getBinding (id) {
+      let _self = this
+      if (id) {
+        let url = PostDeptGetBindingIdPath + '/' + id
+        _self.postDeptGetBindingId({ url: url, data: null }).then(result => {
+          let code = result.errCode
+          if (code != 200) {
+            this.$message.error(result.data)
+          } else {
+            _self.bindingDeptList = result.data
+            _self.getDeptTree()
+          }
+        })
+      }
+    },
+    getDeptTree () {
+      let _self = this
+      let url = DeptTreePath
+      _self.deptTree({ url: url, data: null }).then(result => {
+        let code = result.errCode
+        if (code != 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.treeData = result.data
+          this.$nextTick(() => {
+            _self.$refs.tree.setCheckedKeys(_self.bindingDeptList, false)
+          })
+          _self.dialogDeptFormVisible = true
+        }
+      })
+    },
+    bindingDept (postId, deptIds) {
+      if (postId) {
+        let _self = this
+        let params = JSON.parse(JSON.stringify(deptIds))
+        let url = PostDeptBindingPath + '/' + postId
+        _self.postDeptBinding({ url: url, data: params }).then(result => {
+          let code = result.errCode
+          if (code != 200) {
+            _self.$message.error(result.data)
+          } else {
+            _self.dialogDeptFormVisible = false
           }
         })
       }

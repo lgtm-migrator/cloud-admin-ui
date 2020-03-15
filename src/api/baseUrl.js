@@ -72,3 +72,9 @@ export const deptServer = '/v1/server/system/dept'
  * @type {string}
  */
 export const postServer = '/v1/server/system/post'
+
+/**
+ * 岗位组织绑定
+ * @type {string}
+ */
+export const postDeptServer = '/v1/server/system/postDept'
