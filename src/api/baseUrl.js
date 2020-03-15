@@ -66,3 +66,9 @@ export const rolePermissionServer = '/v1/server/system/rolepermission'
  * @type {string}
  */
 export const deptServer = '/v1/server/system/dept'
+
+/**
+ * 岗位
+ * @type {string}
+ */
+export const postServer = '/v1/server/system/post'

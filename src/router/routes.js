@@ -78,6 +78,15 @@ const frameIn = [
         },
         component: _import('system/dept')
       },
+      {
+        path: 'post',
+        name: 'post',
+        meta: {
+          title: '岗位',
+          auth: true
+        },
+        component: _import('system/post')
+      },
       // 演示页面
       {
         path: 'page1',

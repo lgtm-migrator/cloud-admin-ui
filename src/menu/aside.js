@@ -23,6 +23,7 @@ export default [
     icon: '',
     children: [
       { path: '/dept', title: '组织管理' },
+      { path: '/post', title: '岗位管理' },
       { path: '/role', title: '角色管理' }
     ]
   }
