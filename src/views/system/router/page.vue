@@ -11,6 +11,16 @@
         <el-input v-model="searchForm.uri" placeholder="转换目标uri" clearable></el-input>
       </el-form-item>
       <el-form-item>
+        <el-select v-model="searchForm.isEnabled" placeholder="是否启用" clearable>
+          <el-option
+            v-for="item in isEnabledOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
         <el-button @click="handleSearch">查询</el-button>
         <el-button type="primary" @click="addNew">新增</el-button>
       </el-form-item>
@@ -40,7 +50,7 @@
           <el-table-column label="操作" sortable resizable :show-overflow-tooltip="true"
                            align="center">
             <template slot-scope="scope">
-              <el-button type="text"  @click="handleEdit(scope.$index, scope.row)" size="mini">
+              <el-button type="text" @click="handleEdit(scope.$index, scope.row)" size="mini">
                 <i class="el-icon-edit"></i>
                 编辑
               </el-button>
@@ -81,6 +91,12 @@
         <el-form-item required label="执行顺序" prop="order">
           <el-input v-model.number="routerInfo.order" clearable></el-input>
         </el-form-item>
+        <el-form-item label="是否启用" prop="isEnabled">
+          <el-radio-group v-model="routerInfo.isEnabled">
+            <el-radio :label="1">启用</el-radio>
+            <el-radio :label="0">禁用</el-radio>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -97,22 +113,12 @@ import { MessageBox } from 'element-ui'
 export default {
   data: function () {
     return {
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
+      isEnabledOptions: [{
+        value: 1,
+        label: '启用'
       }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
+        value: 0,
+        label: '禁用'
       }],
       position: 'left',
       dialogFormVisible: false,
@@ -120,7 +126,8 @@ export default {
       searchForm: {
         description: '',
         id: '',
-        uri: ''
+        uri: '',
+        isEnabled: ''
       },
       // 路由集
       routerList: [],
@@ -130,8 +137,8 @@ export default {
         description: '',
         predicates: '',
         filters: '',
-        uri: ''
-
+        uri: '',
+        isEnabled: ''
       },
       isUpdate: false,
       // 分页
