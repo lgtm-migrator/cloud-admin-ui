@@ -24,7 +24,8 @@ export default [
     children: [
       { path: '/dept', title: '组织管理' },
       { path: '/post', title: '岗位管理' },
-      { path: '/role', title: '角色管理' }
+      { path: '/role', title: '角色管理' },
+      { path: 'user', title: '用户管理' }
     ]
   }
 ]

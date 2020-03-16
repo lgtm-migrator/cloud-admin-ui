@@ -87,6 +87,15 @@ const frameIn = [
         },
         component: _import('system/post')
       },
+      {
+        path: 'user',
+        name: 'user',
+        meta: {
+          title: '用户',
+          auth: true
+        },
+        component: _import('system/user')
+      },
       // 演示页面
       // {
       //   path: 'page1',
