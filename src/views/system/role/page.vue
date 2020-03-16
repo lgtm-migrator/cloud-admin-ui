@@ -80,7 +80,7 @@
               </el-button>
               <el-button type="text" @click="handleDept(scope.row)" size="mini">
                 <i class="el-icon-plus"></i>
-                权限
+                数据范围
               </el-button>
             </template>
           </el-table-column>
