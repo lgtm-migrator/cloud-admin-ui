@@ -22,3 +22,9 @@ export const PostDeletePath = '/delete'
  * @type {string}
  */
 export const PostUpdatePath = '/update'
+
+/**
+ * 获取全部的岗位
+ * @type {string}
+ */
+export const PostAllPath = '/posts'

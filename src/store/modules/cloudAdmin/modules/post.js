@@ -1,5 +1,5 @@
 /* 岗位 */
-import { PostGetPage, PostSave, PostDelete, PostUpdate } from '@api/post/post'
+import { PostGetPage, PostSave, PostDelete, PostUpdate, PostAll } from '@api/post/post'
 
 export default {
   namespaced: true,
@@ -61,6 +61,21 @@ export default {
     postUpdate ({ dispatch }, { url, data } = {}) {
       return new Promise((resolve, reject) => {
         PostUpdate(url, data).then(result => {
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    /**
+     * 获取全部
+     * @param dispatch
+     * @param url
+     * @param data
+     */
+    postAll ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        PostAll(url, data).then(result => {
           resolve(result)
         }).catch(error => {
           reject(error)

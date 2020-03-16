@@ -116,6 +116,7 @@
 </template>
 <script> import { mapActions } from 'vuex'
 import { DeptTreePath } from '@api/adminApi/dept'
+import { PostAllPath } from '@/api/adminApi/post'
 
 export default {
   data: function () {
@@ -143,9 +144,11 @@ export default {
   mounted () {
     let _self = this
     _self.getDeptTree()
+    _self.getPostList()
   },
   methods: {
     ...mapActions('cloudAdmin/dept', ['deptTree']),
+    ...mapActions('cloudAdmin/post', ['postAll']),
     /**
      * 获取组织机构
      */
@@ -166,6 +169,15 @@ export default {
      */
     getPostList () {
       let _self = this
+      let url = PostAllPath
+      _self.postAll({ url: url, data: null }).then(result => {
+        let code = result.errCode
+        if (code !== 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.postData = result.data
+        }
+      })
     },
     /**
      * 单选,选中change

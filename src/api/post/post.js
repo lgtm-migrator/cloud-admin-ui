@@ -65,6 +65,22 @@ export function PostUpdate (url, data) {
   }
 }
 
+/**
+ * 获取全部岗位
+ * @param url
+ * @param data
+ * @returns {*}
+ * @constructor
+ */
+export function PostAll (url, data) {
+  url = postBaseUrl(url)
+  if (data) {
+    return httpGet(url, data)
+  } else {
+    return httpGet(url, null)
+  }
+}
+
 export function postBaseUrl (url) {
   if (url) {
     url = postServer + url
