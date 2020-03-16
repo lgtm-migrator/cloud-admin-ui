@@ -110,6 +110,12 @@
             <el-input v-model.number="roleInfoForm.description" autosize
                       type="textarea" placeholder="请输入角色描述"></el-input>
           </el-form-item>
+          <el-form-item label="是否启用" prop="isEnabled">
+            <el-radio-group v-model="roleInfoForm.isEnabled">
+              <el-radio :label="1">启用</el-radio>
+              <el-radio :label="0">禁用</el-radio>
+            </el-radio-group>
+          </el-form-item>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
