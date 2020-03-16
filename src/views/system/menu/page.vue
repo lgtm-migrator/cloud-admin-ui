@@ -142,7 +142,7 @@
                   style="padding-left:10px;padding-right:10px">
             <el-form-item label="上级菜单" prop="parentId">
               <el-cascader v-model="menuInfo.parentId" :key="cascaderKey"
-                            :props="optionProps" :options="menuTreeInfo" filterable
+                           :props="optionProps" :options="menuTreeInfo" filterable
                            clearable></el-cascader>
             </el-form-item>
           </el-col>
@@ -173,6 +173,17 @@
                   style="padding-left:10px;padding-right:10px">
             <el-form-item label="备注" prop="description">
               <el-input type="textarea" v-model="menuInfo.description" placeholder="备注" clearable></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12"
+                  :xs="24"
+                  :offset="0"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item label="是否启用" prop="isEnabled">
+              <el-radio-group v-model="menuInfo.isEnabled">
+                <el-radio :label="1">启用</el-radio>
+                <el-radio :label="0">禁用</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>
@@ -244,12 +255,23 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :md="24"
+          <el-col :md="12"
                   :xs="24"
                   :offset="0"
                   style="padding-left:10px;padding-right:10px">
             <el-form-item label="备注" prop="description">
               <el-input type="textarea" v-model="viewInfo.description" clearable></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12"
+                  :xs="24"
+                  :offset="0"
+                  style="padding-left:10px;padding-right:10px">
+            <el-form-item label="是否启用" prop="isEnabled">
+              <el-radio-group v-model="viewInfo.isEnabled">
+                <el-radio :label="1">启用</el-radio>
+                <el-radio :label="0">禁用</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>
@@ -468,12 +490,6 @@ export default {
           if (info.parentId == 0) {
             _self.getMenusByParentId(0)
           } else {
-            // if (_self.loadNodeMap.get(info.parentId)) {
-            //   const { tree, treeNode, resolve } = _self.loadNodeMap.get(info.parentId)
-            //   if (tree) {
-            //     _self.loadNode(tree, treeNode, resolve)
-            //   }
-            // }
             this.$set(this.$refs.tableDom.store.states.lazyTreeNodeMap, info.id, [])
             const { tree, treeNode, resolve } = this.loadNodeMap.get(info.id)
             _self.loadNode(tree, treeNode, resolve)
