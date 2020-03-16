@@ -1,4 +1,4 @@
-import { UserInfoById, UserSetting, UserSettingPasswordCurrent } from '@api/user/user'
+import { UserInfoById, UserSave, UserSetting, UserSettingPasswordCurrent } from '@api/user/user'
 
 export default {
   namespaced: true,
@@ -42,6 +42,21 @@ export default {
     userSettingPasswordCurrent ({ dispatch }, { url, data } = {}) {
       return new Promise((resolve, reject) => {
         UserSettingPasswordCurrent(url, data).then(result => {
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    /**
+     * 用户新增
+     * @param dispatch
+     * @param url
+     * @param data
+     */
+    userSave ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        UserSave(url, data).then(result => {
           resolve(result)
         }).catch(error => {
           reject(error)

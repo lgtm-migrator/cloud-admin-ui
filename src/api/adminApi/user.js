@@ -15,3 +15,9 @@ export const userUpdatePath = '/update/userInfo'
  * @type {string}
  */
 export const userUpdatePasswordCurrentPath = '/update/password/current'
+
+/**
+ * 用户新增
+ * @type {string}
+ */
+export const UserSavePath = '/save'

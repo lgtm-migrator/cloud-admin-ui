@@ -71,6 +71,21 @@ export function UserSettingPasswordCurrent (url, data) {
   }
 }
 
+/**
+ * 用户新增
+ * @param url
+ * @param data
+ * @constructor
+ */
+export function UserSave (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpPost(url, data)
+  } else {
+    return httpPost(url, null)
+  }
+}
+
 export function userBaseUrl (url) {
   if (url) {
     url = userServer + url

@@ -62,7 +62,7 @@
           <el-input v-model="userInfo.username" clearable></el-input>
         </el-form-item>
         <el-form-item required prop="password" label="登录密码">
-          <el-input v-model="userInfo.password" clearable></el-input>
+          <el-input type="password" v-model="userInfo.password" clearable></el-input>
         </el-form-item>
         <el-form-item prop="phone" label="手机号">
           <el-input v-model="userInfo.phone" clearable></el-input>
@@ -72,7 +72,7 @@
         </el-form-item>
         <el-form-item prop="dept" label="所属组织">
           <el-cascader
-            :model="userInfo.dept"
+            v-model="userInfoDept"
             :options="treeData"
             :props="{ checkStrictly: true, children: 'children',label: 'name',value:'id'}"
             clearable
@@ -80,21 +80,21 @@
         </el-form-item>
         <el-form-item prop="post" label="所属岗位">
           <el-cascader
-            :model="userInfo.post"
+            v-model="userInfoPost"
             :options="postData"
             :props="{ checkStrictly: true,multiple: true ,children: 'children',label: 'name',value:'id'}"
             clearable></el-cascader>
         </el-form-item>
         <el-form-item prop="role" label="用户角色">
           <el-select
-            v-model="userInfo.role"
+            v-model="userInfoRole"
             multiple
             collapse-tags
             placeholder="请选择">
             <el-option
               v-for="item in roleData"
-              :key="item.value"
-              :label="item.label"
+              :key="item.id"
+              :label="item.name"
               :value="item.id">
             </el-option>
           </el-select>
@@ -107,7 +107,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary"><i class="el-icon-circle-plus-outline"></i>保存
+        <el-button type="primary" @click="handleSave"><i class="el-icon-circle-plus-outline"></i>保存
         </el-button>
         <el-button><i class="el-icon-circle-close"></i>取 消</el-button>
       </div>
@@ -117,6 +117,8 @@
 <script> import { mapActions } from 'vuex'
 import { DeptTreePath } from '@api/adminApi/dept'
 import { PostAllPath } from '@/api/adminApi/post'
+import { RoleListPath } from '@/api/adminApi/role'
+import { UserSavePath } from '@/api/adminApi/user'
 
 export default {
   data: function () {
@@ -138,17 +140,23 @@ export default {
       isUpdate: false,
       userInfo: {},
       // 表单校验
-      rules: {}
+      rules: {},
+      userInfoDept: {},
+      userInfoPost: [],
+      userInfoRole: []
     }
   },
   mounted () {
     let _self = this
     _self.getDeptTree()
     _self.getPostList()
+    _self.getRoleList()
   },
   methods: {
     ...mapActions('cloudAdmin/dept', ['deptTree']),
     ...mapActions('cloudAdmin/post', ['postAll']),
+    ...mapActions('cloudAdmin/role', ['roleListPage']),
+    ...mapActions('cloudAdmin/user', ['userSave']),
     /**
      * 获取组织机构
      */
@@ -176,6 +184,21 @@ export default {
           _self.$message.error(result.data)
         } else {
           _self.postData = result.data
+        }
+      })
+    },
+    /**
+     * 角色信息
+     */
+    getRoleList () {
+      let _self = this
+      let url = RoleListPath
+      _self.roleListPage({ url: url, data: null }).then(result => {
+        let code = result.errCode
+        if (code !== 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.roleData = result.data
         }
       })
     },
@@ -210,10 +233,46 @@ export default {
       _self.userInfo = {}
       _self.dialogFormVisible = true
     },
+    handleSave () {
+      let _self = this
+      // 校验
+      this.$refs.userInfoForm.validate((valid) => {
+        if (valid) {
+          if (_self.isUpdate) {
+
+          } else {
+            _self.save()
+          }
+        } else {
+          // 校验失败
+          // 登录表单校验失败
+          this.$message.error('表单校验失败，请检查')
+        }
+      })
+    },
     /**
      * 组织选中
      */
     handleChangeDept () {
+    },
+    save () {
+      let _self = this
+      let info = JSON.parse(JSON.stringify(_self.userInfo))
+      let posts = JSON.stringify(_self.userInfoPost)
+      info.deptId = _self.userInfoDept[0]
+      info.roles = _self.userInfoRole
+      info.posts = posts
+      let url = UserSavePath
+      // _self.userSave({ url: url, data: info }).then(result => {
+      //   let code = result.errCode
+      //   if (code !== 200) {
+      //     _self.$message.error(result.data)
+      //   } else {
+      //     _self.getDeptTree()
+      //     _self.getPostList()
+      //     _self.getRoleList()
+      //   }
+      // })
     }
   }
 }
