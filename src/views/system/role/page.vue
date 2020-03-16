@@ -78,6 +78,10 @@
                 <i class="el-icon-plus"></i>
                 权限
               </el-button>
+              <el-button type="text" @click="handleDept(scope.row)" size="mini">
+                <i class="el-icon-plus"></i>
+                权限
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -143,6 +147,21 @@
         <el-button @click="handleUpdatePermissionDialogClose">取 消</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="组织信息" :visible.sync="dialogDeptFormVisible" center>
+      <el-tree :data="treeData"
+               show-checkbox
+               ref="tree"
+               node-key="id"
+               :props="treeProps"
+               :highlight-current='true'
+               default-expand-all
+      >
+      </el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button plain @click="dialogDeptFormVisible = false">取 消</el-button>
+        <el-button plain type="primary" @click="handleDeptSave">确定</el-button>
+      </div>
+    </el-dialog>
   </d2-container>
 </template>
 <script> import { mapActions } from 'vuex'
@@ -150,6 +169,8 @@ import { RoleListPath, RoleSavePath, RoleUpdatePath, RoleRemovePath } from '@api
 import { PermissionMenuAllPath } from '@api/adminApi/permissionMenu'
 import { RolePermissionSavePath, RolePermissionPermissionIdsPath } from '@api/adminApi/rolePermission'
 import { MessageBox } from 'element-ui'
+import { RoleDeptGetDeptIdByRoleIdPath, RoleDeptBinDingDeptByRoleIdPath } from '@/api/adminApi/roleDept'
+import { DeptTreePath } from '@/api/adminApi/dept'
 
 export default {
   data: function () {
@@ -185,7 +206,14 @@ export default {
         label: 'name'
       },
       currentRow: null,
-      permissionIds: []
+      permissionIds: [],
+      dialogDeptFormVisible: false,
+      treeData: [],
+      treeProps: {
+        children: 'children',
+        label: 'name'
+      },
+      bindingDeptList: []
     }
   },
   mounted () {
@@ -195,6 +223,8 @@ export default {
     ...mapActions('cloudAdmin/role', ['roleListPage', 'roleSave', 'roleUpdate', 'roleRemove']),
     ...mapActions('cloudAdmin/permissionMenu', ['permissionMenuAll']),
     ...mapActions('cloudAdmin/rolePermission', ['rolePermissionSave', 'rolePermissionIds']),
+    ...mapActions('cloudAdmin/roleDept', ['roleDeptGetDeptIdByRoleId', 'roleDeptBindingDeptByRoleId']),
+    ...mapActions('cloudAdmin/dept', ['deptTree']),
     rolePageList () {
       let _self = this
       let url = RoleListPath + '/' + _self.pages.page + '/' + _self.pages.pageSize
@@ -277,6 +307,20 @@ export default {
       let _self = this
       _self.currentrow = row
       _self.getPermissionMenuAll()
+    },
+    handleDept (row) {
+      let _self = this
+      _self.currentrow = row
+      _self.getBindingDept(row.id)
+    },
+    handleDeptSave () {
+      let _self = this
+      let keys = _self.$refs.tree.getCheckedKeys(false)
+      if (!keys.length <= 0) {
+        _self.bindingDept(_self.currentrow.id, keys)
+      } else {
+        _self.dialogDeptFormVisible = false
+      }
     },
     save () {
       let _self = this
@@ -419,6 +463,52 @@ export default {
           } else {
             _self.permissionIds = result.data
             _self.setCheckedKeys()
+          }
+        })
+      }
+    },
+    getBindingDept (id) {
+      let _self = this
+      if (id) {
+        let url = RoleDeptGetDeptIdByRoleIdPath + '/' + id
+        _self.roleDeptGetDeptIdByRoleId({ url: url, data: null }).then(result => {
+          let code = result.errCode
+          if (code != 200) {
+            this.$message.error(result.data)
+          } else {
+            _self.bindingDeptList = result.data
+            _self.getDeptTree()
+          }
+        })
+      }
+    },
+    getDeptTree () {
+      let _self = this
+      let url = DeptTreePath
+      _self.deptTree({ url: url, data: null }).then(result => {
+        let code = result.errCode
+        if (code != 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.treeData = result.data
+          this.$nextTick(() => {
+            _self.$refs.tree.setCheckedKeys(_self.bindingDeptList, false)
+          })
+          _self.dialogDeptFormVisible = true
+        }
+      })
+    },
+    bindingDept (postId, deptIds) {
+      if (postId) {
+        let _self = this
+        let params = JSON.parse(JSON.stringify(deptIds))
+        let url = RoleDeptBinDingDeptByRoleIdPath + '/' + postId
+        _self.roleDeptBindingDeptByRoleId({ url: url, data: params }).then(result => {
+          let code = result.errCode
+          if (code != 200) {
+            _self.$message.error(result.data)
+          } else {
+            _self.dialogDeptFormVisible = false
           }
         })
       }

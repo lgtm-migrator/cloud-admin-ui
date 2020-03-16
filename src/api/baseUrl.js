@@ -78,3 +78,9 @@ export const postServer = '/v1/server/system/post'
  * @type {string}
  */
 export const postDeptServer = '/v1/server/system/postDept'
+
+/**
+ * 角色组织绑定
+ * @type {string}
+ */
+export const roleDeptServer = '/v1/server/system/roleDept'
