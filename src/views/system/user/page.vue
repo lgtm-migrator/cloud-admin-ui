@@ -258,21 +258,40 @@ export default {
     save () {
       let _self = this
       let info = JSON.parse(JSON.stringify(_self.userInfo))
-      let posts = JSON.stringify(_self.userInfoPost)
       info.deptId = _self.userInfoDept[0]
-      info.roles = _self.userInfoRole
+      let role = JSON.parse(JSON.stringify(_self.userInfoRole))
+      info.roles = role
+      let posts = JSON.parse(JSON.stringify(_self.userInfoPost))
+      posts = this.steamroller(posts)
       info.posts = posts
+      console.info(info)
       let url = UserSavePath
-      // _self.userSave({ url: url, data: info }).then(result => {
-      //   let code = result.errCode
-      //   if (code !== 200) {
-      //     _self.$message.error(result.data)
-      //   } else {
-      //     _self.getDeptTree()
-      //     _self.getPostList()
-      //     _self.getRoleList()
-      //   }
-      // })
+      _self.userSave({ url: url, data: info }).then(result => {
+        let code = result.errCode
+        if (code != 200) {
+          _self.$message.error(result.data)
+        } else {
+          _self.getDeptTree()
+          _self.getPostList()
+          _self.getRoleList()
+        }
+      })
+    },
+    /**
+     * 二维变一维
+     * @param arr
+     * @returns {Array}
+     */
+    steamroller (arr) {
+      if (Array.isArray(arr)) {
+        var newArray = []
+        for (var i = 0; i < arr.length; i++) {
+          newArray.push(arr[i][0])
+        }
+        return newArray
+      } else {
+        return arr
+      }
     }
   }
 }
