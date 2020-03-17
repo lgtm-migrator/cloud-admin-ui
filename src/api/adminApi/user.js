@@ -39,3 +39,9 @@ export const UserInfoPath = '/userInfo'
  * @type {string}
  */
 export const UserUpdatePath = '/updateUser'
+
+/**
+ * 删除
+ * @type {string}
+ */
+export const UserDeletePath = '/delete'

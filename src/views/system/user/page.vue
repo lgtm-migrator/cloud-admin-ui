@@ -119,8 +119,8 @@
         </el-form-item>
         <el-form-item prop="dept" label="所属组织">
           <treeselect v-model="userInfoDept"
-            :options="treeData"
-            :normalizer="normalizer"/>
+                      :options="treeData"
+                      :normalizer="normalizer"/>
         </el-form-item>
         <el-form-item prop="post" label="所属岗位">
           <el-cascader
@@ -162,9 +162,10 @@
 import { DeptTreePath } from '@api/adminApi/dept'
 import { PostAllPath } from '@/api/adminApi/post'
 import { RoleListPath } from '@/api/adminApi/role'
-import { UserInfoPath, UserPagePath, UserSavePath, UserUpdatePath } from '@/api/adminApi/user'
+import { UserInfoPath, UserPagePath, UserSavePath, UserUpdatePath, UserDeletePath } from '@/api/adminApi/user'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import { MessageBox } from 'element-ui'
 
 export default {
   components: { Treeselect },
@@ -210,7 +211,7 @@ export default {
     ...mapActions('cloudAdmin/dept', ['deptTree']),
     ...mapActions('cloudAdmin/post', ['postAll']),
     ...mapActions('cloudAdmin/role', ['roleListPage']),
-    ...mapActions('cloudAdmin/user', ['userSave', 'userPage', 'userInfoId', 'userUpdate']),
+    ...mapActions('cloudAdmin/user', ['userSave', 'userPage', 'userInfoId', 'userUpdate', 'userDelete']),
     /**
      * 获取组织机构
      */
@@ -351,6 +352,14 @@ export default {
       _self.getUserInfo(id)
       _self.isUpdate = true
     },
+    handleRemove (index, row) {
+      let _self = this
+      MessageBox.confirm('是否删除该数据', '删除', {
+        type: 'warning'
+      }).then(() => {
+        _self.delete(row.id)
+      })
+    },
     /**
      * 组织选中
      */
@@ -370,7 +379,7 @@ export default {
           } else {
             _self.dialogFormVisible = true
             _self.userInfo = result.data
-            _self.userInfoDept = [_self.userInfo.deptId]
+            _self.userInfoDept = _self.userInfo.deptId
             _self.userInfoRole = _self.userInfo.roles
             _self.userInfoPost = _self.userInfo.posts
           }
@@ -380,13 +389,14 @@ export default {
     save () {
       let _self = this
       let info = JSON.parse(JSON.stringify(_self.userInfo))
-      info.deptId = _self.userInfoDept[0]
+      info.deptId = _self.userInfoDept
       let role = JSON.parse(JSON.stringify(_self.userInfoRole))
       info.roles = role
       let posts = JSON.parse(JSON.stringify(_self.userInfoPost))
       posts = this.steamroller(posts)
       info.posts = posts
       let url = UserSavePath
+      console.info(info)
       _self.userSave({ url: url, data: info }).then(result => {
         let code = result.errCode
         if (code != 200) {
@@ -402,7 +412,7 @@ export default {
     update () {
       let _self = this
       let info = JSON.parse(JSON.stringify(_self.userInfo))
-      info.deptId = _self.userInfoDept[_self.userInfoDept.length - 1]
+      info.deptId = _self.userInfoDept
       let role = JSON.parse(JSON.stringify(_self.userInfoRole))
       info.roles = role
       let posts = JSON.parse(JSON.stringify(_self.userInfoPost))
@@ -420,6 +430,23 @@ export default {
           _self.dialogFormVisible = false
         }
       })
+    },
+    delete (id) {
+      let _self = this
+      if (id) {
+        let url = UserDeletePath + '/' + id
+        _self.userDelete({ url: url, data: null }).then(result => {
+          let code = result.errCode
+          if (code != 200) {
+            _self.$message.error(result.data)
+          } else {
+            _self.getDeptTree()
+            _self.getPostList()
+            _self.getRoleList()
+            _self.userList = []
+          }
+        })
+      }
     },
     /**
      * 二维变一维

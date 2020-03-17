@@ -132,6 +132,22 @@ export function UserUpdate (url, data) {
   }
 }
 
+/**
+ * 删除
+ * @param url
+ * @param data
+ * @returns {*}
+ * @constructor
+ */
+export function UserDelete (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpGet(url, data)
+  } else {
+    return httpGet(url, null)
+  }
+}
+
 export function userBaseUrl (url) {
   if (url) {
     url = userServer + url

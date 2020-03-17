@@ -5,7 +5,8 @@ import {
   UserSettingPasswordCurrent,
   UserPage,
   UserInfoId,
-  UserUpdate
+  UserUpdate,
+  UserDelete
 } from '@api/user/user'
 
 export default {
@@ -116,6 +117,21 @@ export default {
           reject(error)
         })
       })
-    }
+    },
+    /**
+     * 删除
+     * @param dispatch
+     * @param url
+     * @param data
+     */
+    userDelete ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        UserDelete(url, data).then(result => {
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
   }
 }
