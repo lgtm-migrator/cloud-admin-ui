@@ -1,4 +1,12 @@
-import { UserInfoById, UserSave, UserSetting, UserSettingPasswordCurrent } from '@api/user/user'
+import {
+  UserInfoById,
+  UserSave,
+  UserSetting,
+  UserSettingPasswordCurrent,
+  UserPage,
+  UserInfoId,
+  UserUpdate
+} from '@api/user/user'
 
 export default {
   namespaced: true,
@@ -57,6 +65,52 @@ export default {
     userSave ({ dispatch }, { url, data } = {}) {
       return new Promise((resolve, reject) => {
         UserSave(url, data).then(result => {
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    /**
+     * 用户集合
+     * @param dispatch
+     * @param url
+     * @param data
+     */
+    userPage ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        UserPage(url, data).then(result => {
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    /**
+     * 获取用户信息(包含用户组织等)
+     * @param dispatch
+     * @param url
+     * @param data
+     * @returns {Promise<any>}
+     */
+    userInfoId ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        UserInfoId(url, data).then(result => {
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    /**
+     * 用户更新
+     * @param dispatch
+     * @param url
+     * @param data
+     */
+    userUpdate ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        UserUpdate(url, data).then(result => {
           resolve(result)
         }).catch(error => {
           reject(error)

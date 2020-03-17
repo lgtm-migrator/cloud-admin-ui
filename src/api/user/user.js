@@ -86,6 +86,52 @@ export function UserSave (url, data) {
   }
 }
 
+/**
+ * 用户集合
+ * @param url
+ * @param data
+ * @returns {*}
+ * @constructor
+ */
+export function UserPage (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpPost(url, data)
+  } else {
+    return httpPost(url, null)
+  }
+}
+
+/**
+ * 获取用户详情(包含用户组织用户岗位等信息)
+ * @param url
+ * @param data
+ * @constructor
+ */
+export function UserInfoId (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpGet(url, data)
+  } else {
+    return httpGet(url, null)
+  }
+}
+
+/**
+ * 用户更新
+ * @param url
+ * @param data
+ * @constructor
+ */
+export function UserUpdate (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpPost(url, data)
+  } else {
+    return httpPost(url, null)
+  }
+}
+
 export function userBaseUrl (url) {
   if (url) {
     url = userServer + url

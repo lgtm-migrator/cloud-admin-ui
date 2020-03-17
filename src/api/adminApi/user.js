@@ -21,3 +21,21 @@ export const userUpdatePasswordCurrentPath = '/update/password/current'
  * @type {string}
  */
 export const UserSavePath = '/save'
+
+/**
+ *获取用户集合
+ * @type {string}
+ */
+export const UserPagePath = '/getUser'
+
+/**
+ * 获取用户详情
+ * @type {string}
+ */
+export const UserInfoPath = '/userInfo'
+
+/**
+ * 用户信息更新
+ * @type {string}
+ */
+export const UserUpdatePath = '/updateUser'
