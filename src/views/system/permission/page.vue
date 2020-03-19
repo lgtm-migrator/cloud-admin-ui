@@ -171,7 +171,7 @@
 </template>
 <script>import { mapActions } from 'vuex'
 import { MenusByParentIdPath } from '@api/adminApi/menu'
-import { PermissionSavePath, PermissionUpdatePath, PermissionUnBindingPath } from '@api/adminApi/permission'
+import { PermissionSavePath, PermissionUnBindingPath, PermissionUpdatePath } from '@api/adminApi/permission'
 import { PermissionMenuByMenuIdPath } from '@api/adminApi/permissionMenu'
 import router from '@/router'
 import { MessageBox } from 'element-ui'
@@ -225,16 +225,7 @@ export default {
       let _self = this
       let url = MenusByParentIdPath + '/' + params
       _self.menuList({ url: url, data: '' }).then(result => {
-        let code = result.errCode
-        if (code === 514) {
-          router.push({
-            name: 'login'
-          })
-        } else if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.datamenuList = result.data
-        }
+        _self.datamenuList = result
       })
     },
     loadNode (node, resolve) {
@@ -245,16 +236,7 @@ export default {
         let id = node.data.id
         let url = MenusByParentIdPath + '/' + id
         _self.menuList({ url: url, data: '' }).then(result => {
-          let code = result.errCode
-          if (code === 514) {
-            router.push({
-              name: 'login'
-            })
-          } else if (code !== 200) {
-            _self.$message.error(result.data)
-          } else {
-            resolve(result.data)
-          }
+          resolve(result)
         })
       }
     },
@@ -344,11 +326,7 @@ export default {
       if (meuId) {
         let url = PermissionMenuByMenuIdPath + '/' + meuId
         _self.permissionMenuByMenuId({ url: url, data: '' }).then(result => {
-          if (result.errCode !== 200) {
-            this.$message.error(result.data)
-          } else {
-            _self.permissionList = result.data
-          }
+          _self.permissionList = result
         })
       }
     },
@@ -405,13 +383,9 @@ export default {
       let info = JSON.parse(JSON.stringify(_self.permissionInfo))
       let url = PermissionSavePath
       _self.permissionSave({ url: url, data: info }).then(result => {
-        if (result.errCode !== 200) {
-          this.$message.error(result.data)
-        } else {
-          _self.dialogPermissionFormVisible = false
-          _self.permissionInfo = {}
-          _self.permissionMenuByMenuIdHandler(_self.currentCheckedId)
-        }
+        _self.dialogPermissionFormVisible = false
+        _self.permissionInfo = {}
+        _self.permissionMenuByMenuIdHandler(_self.currentCheckedId)
       })
     },
     update () {
@@ -419,13 +393,9 @@ export default {
       let info = JSON.parse(JSON.stringify(_self.permissionInfo))
       let url = PermissionUpdatePath + '/' + info.id
       _self.permissionUpdate({ url: url, data: info }).then(result => {
-        if (result.errCode !== 200) {
-          this.$message.error(result.data)
-        } else {
-          _self.dialogPermissionFormVisible = false
-          _self.permissionInfo = {}
-          _self.permissionMenuByMenuIdHandler(_self.currentCheckedId)
-        }
+        _self.dialogPermissionFormVisible = false
+        _self.permissionInfo = {}
+        _self.permissionMenuByMenuIdHandler(_self.currentCheckedId)
       })
     },
     /**
@@ -436,13 +406,9 @@ export default {
       if (id && menuId) {
         let url = PermissionUnBindingPath + '/' + id + '/' + menuId
         _self.permissionUnBinding({ url: url, data: null }).then(result => {
-          if (result.errCode !== 200) {
-            this.$message.error(result.data)
-          } else {
-            _self.dialogPermissionFormVisible = false
-            _self.permissionInfo = {}
-            _self.permissionMenuByMenuIdHandler(_self.currentCheckedId)
-          }
+          _self.dialogPermissionFormVisible = false
+          _self.permissionInfo = {}
+          _self.permissionMenuByMenuIdHandler(_self.currentCheckedId)
         })
       }
     }

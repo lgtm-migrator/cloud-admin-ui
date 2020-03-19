@@ -70,7 +70,7 @@
 <script> import util from '@/libs/util.js'
 import router from '@/router'
 import { mapActions } from 'vuex'
-import { userUpdatePath, userUpdatePasswordCurrentPath } from '@api/adminApi/user'
+import { userUpdatePasswordCurrentPath, userUpdatePath } from '@api/adminApi/user'
 
 export default {
   data () {
@@ -147,15 +147,7 @@ export default {
       let id = util.cookies.get('userId')
       if (id) {
         this.userInfoById({ url: '/' + id, data: '' }).then(result => {
-          if (result.errCode === 514) {
-            router.push({
-              name: 'login'
-            })
-          } else if (result.errCode !== 200) {
-            this.$message.error(result.data)
-          } else {
-            _self.userInfo = result.data
-          }
+          _self.userInfo = result
         })
       } else {
         // 跳转路由
@@ -183,14 +175,10 @@ export default {
         portraits: info.portraits
       }
       _self.userSetting({ url: url, data: params }).then(result => {
-        if (result.errCode === 200) {
-          _self.resetForm('userInfoForm')
-          _self.set({
-            name: info.name
-          })
-        } else {
-          _self.$message.error(result.data)
-        }
+        _self.resetForm('userInfoForm')
+        _self.set({
+          name: info.name
+        })
       })
     },
     /**
@@ -207,12 +195,7 @@ export default {
             newPassword2: _self.passwordInfo.newPassword2
           }
           _self.userSettingPasswordCurrent({ url: url, data: parms }).then(result => {
-            let code = result.errCode
-            if (code !== 200) {
-              _self.$message.error(result.data)
-            } else {
-              _self.logout()
-            }
+            _self.logout()
           })
         } else {
           _self.$message.error('表单校验失败，请检查')

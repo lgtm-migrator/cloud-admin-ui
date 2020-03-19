@@ -74,7 +74,7 @@
   </d2-container>
 </template>
 <script> import { mapActions } from 'vuex'
-import { DeptSavePath, DeptTreePath, DeptUpdatePath, DeptRemovePath } from '@api/adminApi/dept'
+import { DeptRemovePath, DeptSavePath, DeptTreePath, DeptUpdatePath } from '@api/adminApi/dept'
 import { MessageBox } from 'element-ui'
 
 export default {
@@ -127,12 +127,7 @@ export default {
       let _self = this
       let url = DeptTreePath
       _self.deptTree({ url: url, data: null }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.treeData = result.data
-        }
+        _self.treeData = result
       })
     },
     /**
@@ -254,13 +249,8 @@ export default {
       let params = JSON.parse(JSON.stringify(_self.deptInfo))
       let url = DeptSavePath
       _self.deptSave({ url: url, data: params }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.getTree()
-          _self.handlerAddNew()
-        }
+        _self.getTree()
+        _self.handlerAddNew()
       })
     },
     update () {
@@ -268,13 +258,8 @@ export default {
       let params = JSON.parse(JSON.stringify(_self.deptInfo))
       let url = DeptUpdatePath + '/' + _self.deptInfo.id
       _self.deptUpdate({ url: url, data: params }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.getTree()
-          _self.handlerAddNew()
-        }
+        _self.getTree()
+        _self.handlerAddNew()
       })
     },
     /**
@@ -286,13 +271,8 @@ export default {
         let _self = this
         let url = DeptRemovePath
         _self.deptRemove({ url: url, data: ids }).then(result => {
-          let code = result.errCode
-          if (code != 200) {
-            _self.$message.error(result.data)
-          } else {
-            _self.getTree()
-            _self.handlerAddNew()
-          }
+          _self.getTree()
+          _self.handlerAddNew()
         })
       }
     }

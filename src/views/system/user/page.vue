@@ -162,7 +162,7 @@
 import { DeptTreePath } from '@api/adminApi/dept'
 import { PostAllPath } from '@/api/adminApi/post'
 import { RoleListPath } from '@/api/adminApi/role'
-import { UserInfoPath, UserPagePath, UserSavePath, UserUpdatePath, UserDeletePath } from '@/api/adminApi/user'
+import { UserDeletePath, UserInfoPath, UserPagePath, UserSavePath, UserUpdatePath } from '@/api/adminApi/user'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { MessageBox } from 'element-ui'
@@ -219,12 +219,7 @@ export default {
       let _self = this
       let url = DeptTreePath
       _self.deptTree({ url: url, data: null }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.treeData = result.data
-        }
+        _self.treeData = result
       })
     },
     /**
@@ -234,12 +229,7 @@ export default {
       let _self = this
       let url = PostAllPath
       _self.postAll({ url: url, data: null }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.postData = result.data
-        }
+        _self.postData = result
       })
     },
     /**
@@ -249,12 +239,7 @@ export default {
       let _self = this
       let url = RoleListPath
       _self.roleListPage({ url: url, data: null }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.roleData = result.data
-        }
+        _self.roleData = result
       })
     },
     /**
@@ -373,16 +358,11 @@ export default {
       if (id) {
         let url = UserInfoPath + '/' + id
         _self.userInfoId({ url: url, data: null }).then(result => {
-          let code = result.errCode
-          if (code != 200) {
-            _self.$message.error(result.data)
-          } else {
-            _self.dialogFormVisible = true
-            _self.userInfo = result.data
-            _self.userInfoDept = _self.userInfo.deptId
-            _self.userInfoRole = _self.userInfo.roles
-            _self.userInfoPost = _self.userInfo.posts
-          }
+          _self.dialogFormVisible = true
+          _self.userInfo = result
+          _self.userInfoDept = _self.userInfo.deptId
+          _self.userInfoRole = _self.userInfo.roles
+          _self.userInfoPost = _self.userInfo.posts
         })
       }
     },
@@ -398,15 +378,10 @@ export default {
       let url = UserSavePath
       console.info(info)
       _self.userSave({ url: url, data: info }).then(result => {
-        let code = result.errCode
-        if (code != 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.getDeptTree()
-          _self.getPostList()
-          _self.getRoleList()
-          _self.dialogFormVisible = false
-        }
+        _self.getDeptTree()
+        _self.getPostList()
+        _self.getRoleList()
+        _self.dialogFormVisible = false
       })
     },
     update () {
@@ -420,15 +395,10 @@ export default {
       info.posts = posts
       let url = UserUpdatePath + '/' + info.id
       _self.userUpdate({ url: url, data: info }).then(result => {
-        let code = result.errCode
-        if (code != 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.getDeptTree()
-          _self.getPostList()
-          _self.getRoleList()
-          _self.dialogFormVisible = false
-        }
+        _self.getDeptTree()
+        _self.getPostList()
+        _self.getRoleList()
+        _self.dialogFormVisible = false
       })
     },
     delete (id) {
@@ -436,15 +406,10 @@ export default {
       if (id) {
         let url = UserDeletePath + '/' + id
         _self.userDelete({ url: url, data: null }).then(result => {
-          let code = result.errCode
-          if (code != 200) {
-            _self.$message.error(result.data)
-          } else {
-            _self.getDeptTree()
-            _self.getPostList()
-            _self.getRoleList()
-            _self.userList = []
-          }
+          _self.getDeptTree()
+          _self.getPostList()
+          _self.getRoleList()
+          _self.userList = []
         })
       }
     },
@@ -478,13 +443,8 @@ export default {
       }
       let url = UserPagePath + '/' + _self.pages.page + '/' + _self.pages.pageSize
       _self.userPage({ url: url, data: params }).then(result => {
-        let code = result.errCode
-        if (code != 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.userList = result.data.list
-          _self.pages.total = Number(result.data.total)
-        }
+        _self.userList = result.list
+        _self.pages.total = Number(result.total)
       })
     }
   }

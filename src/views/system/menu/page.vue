@@ -282,11 +282,11 @@
 </template>
 <script>import { mapActions } from 'vuex'
 import {
+  MenuRemovePath,
   MenuSavePath,
   MenusByParentIdPath,
   MenusTreePath,
-  MenuUpdateByIdPath,
-  MenuRemovePath
+  MenuUpdateByIdPath
 } from '@api/adminApi/menu'
 import router from '@/router'
 
@@ -349,16 +349,7 @@ export default {
       let _self = this
       let url = MenusByParentIdPath + '/' + params
       _self.menuList({ url: url, data: '' }).then(result => {
-        let code = result.errCode
-        if (code === 514) {
-          router.push({
-            name: 'login'
-          })
-        } else if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.dataList = result.data
-        }
+        _self.dataList = result
       })
     },
     loadNode (tree, treeNode, resolve) {
@@ -367,16 +358,7 @@ export default {
       _self.loadNodeMap.set(id, { tree, treeNode, resolve })
       let url = MenusByParentIdPath + '/' + id
       _self.menuList({ url: url, data: '' }).then(result => {
-        let code = result.errCode
-        if (code === 514) {
-          router.push({
-            name: 'login'
-          })
-        } else if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          resolve(result.data)
-        }
+        resolve(result)
       })
     },
     /**
@@ -386,16 +368,7 @@ export default {
       let url = MenusTreePath + '/' + type
       let _self = this
       _self.menuTree({ url: url, data: null }).then(result => {
-        let code = result.errCode
-        if (code === 514) {
-          router.push({
-            name: 'login'
-          })
-        } else if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.menuTreeInfo = result.data
-        }
+        _self.menuTreeInfo = result
       })
     },
     /**
@@ -441,28 +414,19 @@ export default {
       }
       let url = MenuSavePath
       _self.menuSave({ url: url, data: info }).then(result => {
-        let code = result.errCode
-        if (code === 514) {
-          router.push({
-            name: 'login'
-          })
-        } else if (code !== 200) {
-          _self.$message.error(result.data)
+        if (info.parentId == 0) {
+          _self.getMenusByParentId(0)
         } else {
-          if (info.parentId == 0) {
-            _self.getMenusByParentId(0)
-          } else {
-            if (_self.loadNodeMap.get(info.parentId)) {
-              const { tree, treeNode, resolve } = _self.loadNodeMap.get(info.parentId)
-              if (tree) {
-                _self.loadNode(tree, treeNode, resolve)
-              }
+          if (_self.loadNodeMap.get(info.parentId)) {
+            const { tree, treeNode, resolve } = _self.loadNodeMap.get(info.parentId)
+            if (tree) {
+              _self.loadNode(tree, treeNode, resolve)
             }
           }
-          _self.MenusTreeAll(0)
-          _self.menuInfo = {}
-          _self.dialogFormVisible = false
         }
+        _self.MenusTreeAll(0)
+        _self.menuInfo = {}
+        _self.dialogFormVisible = false
       })
     },
     /**
@@ -480,25 +444,16 @@ export default {
       }
       let url = MenuUpdateByIdPath + '/' + info.id
       _self.menuUpdateById({ url: url, data: info }).then(result => {
-        let code = result.errCode
-        if (code === 514) {
-          router.push({
-            name: 'login'
-          })
-        } else if (code !== 200) {
-          _self.$message.error(result.data)
+        if (info.parentId == 0) {
+          _self.getMenusByParentId(0)
         } else {
-          if (info.parentId == 0) {
-            _self.getMenusByParentId(0)
-          } else {
-            this.$set(this.$refs.tableDom.store.states.lazyTreeNodeMap, info.id, [])
-            const { tree, treeNode, resolve } = this.loadNodeMap.get(info.id)
-            _self.loadNode(tree, treeNode, resolve)
-          }
-          _self.MenusTreeAll(0)
-          _self.menuInfo = {}
-          _self.dialogFormVisible = false
+          this.$set(this.$refs.tableDom.store.states.lazyTreeNodeMap, info.id, [])
+          const { tree, treeNode, resolve } = this.loadNodeMap.get(info.id)
+          _self.loadNode(tree, treeNode, resolve)
         }
+        _self.MenusTreeAll(0)
+        _self.menuInfo = {}
+        _self.dialogFormVisible = false
       })
     },
     /**
@@ -537,20 +492,15 @@ export default {
           let id = info.id
           let url = MenuRemovePath + '/' + id
           _self.menuRemove({ url: url, data: null }).then(result => {
-            let code = result.errCode
-            if (code !== 200) {
-              _self.$message.error(result.data)
+            if (info.parentId == 0) {
+              _self.getMenusByParentId(0)
             } else {
-              if (info.parentId == 0) {
-                _self.getMenusByParentId(0)
-              } else {
-                this.$set(this.$refs.tableDom.store.states.lazyTreeNodeMap, info.parentId, [])
-                const { tree, treeNode, resolve } = this.loadNodeMap.get(info.parentId)
-                _self.loadNode(tree, treeNode, resolve)
-              }
-              this.cascaderKey = String(new Date().getTime())
-              _self.MenusTreeAll(0)
+              this.$set(this.$refs.tableDom.store.states.lazyTreeNodeMap, info.parentId, [])
+              const { tree, treeNode, resolve } = this.loadNodeMap.get(info.parentId)
+              _self.loadNode(tree, treeNode, resolve)
             }
+            this.cascaderKey = String(new Date().getTime())
+            _self.MenusTreeAll(0)
           })
         })
         .catch(_ => {

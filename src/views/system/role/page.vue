@@ -165,11 +165,11 @@
   </d2-container>
 </template>
 <script> import { mapActions } from 'vuex'
-import { RoleListPath, RoleSavePath, RoleUpdatePath, RoleRemovePath } from '@api/adminApi/role'
+import { RoleListPath, RoleRemovePath, RoleSavePath, RoleUpdatePath } from '@api/adminApi/role'
 import { PermissionMenuAllPath } from '@api/adminApi/permissionMenu'
-import { RolePermissionSavePath, RolePermissionPermissionIdsPath } from '@api/adminApi/rolePermission'
+import { RolePermissionPermissionIdsPath, RolePermissionSavePath } from '@api/adminApi/rolePermission'
 import { MessageBox } from 'element-ui'
-import { RoleDeptGetDeptIdByRoleIdPath, RoleDeptBinDingDeptByRoleIdPath } from '@/api/adminApi/roleDept'
+import { RoleDeptBinDingDeptByRoleIdPath, RoleDeptGetDeptIdByRoleIdPath } from '@/api/adminApi/roleDept'
 import { DeptTreePath } from '@/api/adminApi/dept'
 
 export default {
@@ -229,13 +229,8 @@ export default {
       let _self = this
       let url = RoleListPath + '/' + _self.pages.page + '/' + _self.pages.pageSize
       _self.roleListPage({ url: url, data: null }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.roleList = result.data.list
-          _self.pages.total = result.data.total
-        }
+        _self.roleList = result.list
+        _self.pages.total = result.total
       })
     },
     handleSizeChange (val) {
@@ -327,14 +322,9 @@ export default {
       let info = JSON.parse(JSON.stringify(_self.roleInfoForm))
       let url = RoleSavePath
       _self.roleSave({ url: url, data: info }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.roleInfoForm = {}
-          _self.dialogRoleFormVisible = false
-          _self.rolePageList()
-        }
+        _self.roleInfoForm = {}
+        _self.dialogRoleFormVisible = false
+        _self.rolePageList()
       })
     },
     update () {
@@ -342,14 +332,9 @@ export default {
       let info = JSON.parse(JSON.stringify(_self.roleInfoForm))
       let url = RoleUpdatePath + '/' + info.id
       _self.roleUpdate({ url: url, data: info }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.roleInfoForm = {}
-          _self.dialogRoleFormVisible = false
-          _self.rolePageList()
-        }
+        _self.roleInfoForm = {}
+        _self.dialogRoleFormVisible = false
+        _self.rolePageList()
       })
     },
     remove (id) {
@@ -357,14 +342,9 @@ export default {
       if (id) {
         let url = RoleRemovePath + '/' + id
         _self.roleRemove({ url: url, data: null }).then(result => {
-          let code = result.errCode
-          if (code !== 200) {
-            _self.$message.error(result.data)
-          } else {
-            _self.roleInfoForm = {}
-            _self.dialogRoleFormVisible = false
-            _self.rolePageList()
-          }
+          _self.roleInfoForm = {}
+          _self.dialogRoleFormVisible = false
+          _self.rolePageList()
         })
       }
     },
@@ -375,13 +355,8 @@ export default {
       let _self = this
       let url = PermissionMenuAllPath
       _self.permissionMenuAll({ url: url, data: null }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.permissionMenu = result.data
-          _self.getPermissionIdsByRoleId(_self.currentrow.id)
-        }
+        _self.permissionMenu = result
+        _self.getPermissionIdsByRoleId(_self.currentrow.id)
       })
     },
     /**
@@ -440,12 +415,7 @@ export default {
       }
       let url = RolePermissionSavePath + '/' + _self.currentrow.id
       _self.rolePermissionSave({ url: url, data: permissionIds }).then(result => {
-        let code = result.errCode
-        if (code !== 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.dialogPermissionFormVisible = false
-        }
+        _self.dialogPermissionFormVisible = false
       })
     },
     /**
@@ -457,13 +427,8 @@ export default {
       if (id) {
         let url = RolePermissionPermissionIdsPath + '/' + id
         _self.rolePermissionIds({ url: url, data: null }).then(result => {
-          let code = result.errCode
-          if (code !== 200) {
-            _self.$message.error(result.data)
-          } else {
-            _self.permissionIds = result.data
-            _self.setCheckedKeys()
-          }
+          _self.permissionIds = result
+          _self.setCheckedKeys()
         })
       }
     },
@@ -472,13 +437,8 @@ export default {
       if (id) {
         let url = RoleDeptGetDeptIdByRoleIdPath + '/' + id
         _self.roleDeptGetDeptIdByRoleId({ url: url, data: null }).then(result => {
-          let code = result.errCode
-          if (code != 200) {
-            this.$message.error(result.data)
-          } else {
-            _self.bindingDeptList = result.data
-            _self.getDeptTree()
-          }
+          _self.bindingDeptList = result
+          _self.getDeptTree()
         })
       }
     },
@@ -486,16 +446,11 @@ export default {
       let _self = this
       let url = DeptTreePath
       _self.deptTree({ url: url, data: null }).then(result => {
-        let code = result.errCode
-        if (code != 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.treeData = result.data
-          this.$nextTick(() => {
-            _self.$refs.tree.setCheckedKeys(_self.bindingDeptList, false)
-          })
-          _self.dialogDeptFormVisible = true
-        }
+        _self.treeData = result
+        this.$nextTick(() => {
+          _self.$refs.tree.setCheckedKeys(_self.bindingDeptList, false)
+        })
+        _self.dialogDeptFormVisible = true
       })
     },
     bindingDept (postId, deptIds) {
@@ -504,12 +459,7 @@ export default {
         let params = JSON.parse(JSON.stringify(deptIds))
         let url = RoleDeptBinDingDeptByRoleIdPath + '/' + postId
         _self.roleDeptBindingDeptByRoleId({ url: url, data: params }).then(result => {
-          let code = result.errCode
-          if (code != 200) {
-            _self.$message.error(result.data)
-          } else {
-            _self.dialogDeptFormVisible = false
-          }
+          _self.dialogDeptFormVisible = false
         })
       }
     }

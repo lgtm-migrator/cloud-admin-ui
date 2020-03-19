@@ -162,13 +162,8 @@ export default {
       let url = PostGetPagePath + '/' + _self.pages.page + '/' + _self.pages.pageSize
       let params = {}
       _self.postGetPage({ url: url, data: params }).then(result => {
-        let code = result.errCode
-        if (code != 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.postList = result.data.list
-          _self.pages.total = result.data.total
-        }
+        _self.postList = result.list
+        _self.pages.total = result.total
       })
     },
     handleSizeChange (val) {
@@ -237,14 +232,9 @@ export default {
       let params = JSON.parse(JSON.stringify(_self.postInfo))
       let url = PostSavePath
       _self.postSave({ url: url, data: params }).then(result => {
-        let code = result.errCode
-        if (code != 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.dialogFormVisible = false
-          _self.postInfo = {}
-          _self.posts()
-        }
+        _self.dialogFormVisible = false
+        _self.postInfo = {}
+        _self.posts()
       })
     },
     remove (id) {
@@ -252,14 +242,9 @@ export default {
       if (id) {
         let url = PostDeletePath + '/' + id
         _self.postDelete({ url: url, data: null }).then(result => {
-          let code = result.errCode
-          if (code != 200) {
-            _self.$message.error(result.data)
-          } else {
-            _self.dialogFormVisible = false
-            _self.postInfo = {}
-            _self.posts()
-          }
+          _self.dialogFormVisible = false
+          _self.postInfo = {}
+          _self.posts()
         })
       }
     },
@@ -269,14 +254,9 @@ export default {
       if (params.id) {
         let url = PostUpdatePath + '/' + params.id
         _self.postUpdate({ url: url, data: params }).then(result => {
-          let code = result.errCode
-          if (code != 200) {
-            _self.$message.error(result.data)
-          } else {
-            _self.dialogFormVisible = false
-            _self.postInfo = {}
-            _self.posts()
-          }
+          _self.dialogFormVisible = false
+          _self.postInfo = {}
+          _self.posts()
         })
       }
     },
@@ -285,13 +265,8 @@ export default {
       if (id) {
         let url = PostDeptGetBindingIdPath + '/' + id
         _self.postDeptGetBindingId({ url: url, data: null }).then(result => {
-          let code = result.errCode
-          if (code != 200) {
-            this.$message.error(result.data)
-          } else {
-            _self.bindingDeptList = result.data
-            _self.getDeptTree()
-          }
+          _self.bindingDeptList = result
+          _self.getDeptTree()
         })
       }
     },
@@ -299,16 +274,11 @@ export default {
       let _self = this
       let url = DeptTreePath
       _self.deptTree({ url: url, data: null }).then(result => {
-        let code = result.errCode
-        if (code != 200) {
-          _self.$message.error(result.data)
-        } else {
-          _self.treeData = result.data
-          this.$nextTick(() => {
-            _self.$refs.tree.setCheckedKeys(_self.bindingDeptList, false)
-          })
-          _self.dialogDeptFormVisible = true
-        }
+        _self.treeData = result
+        this.$nextTick(() => {
+          _self.$refs.tree.setCheckedKeys(_self.bindingDeptList, false)
+        })
+        _self.dialogDeptFormVisible = true
       })
     },
     bindingDept (postId, deptIds) {
@@ -317,12 +287,7 @@ export default {
         let params = JSON.parse(JSON.stringify(deptIds))
         let url = PostDeptBindingPath + '/' + postId
         _self.postDeptBinding({ url: url, data: params }).then(result => {
-          let code = result.errCode
-          if (code != 200) {
-            _self.$message.error(result.data)
-          } else {
-            _self.dialogDeptFormVisible = false
-          }
+          _self.dialogDeptFormVisible = false
         })
       }
     }

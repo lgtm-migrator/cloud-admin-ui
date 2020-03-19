@@ -26,21 +26,17 @@ export default {
           password
         })
           .then(res => {
-            if (res.errCode != 200) {
-              Message.error(res.data)
-            } else {
-              util.cookies.set('token', res.data.accessToken, { expires: 10 })
-              // 设置 vuex 用户信息
-              dispatch('d2admin/user/set', {
-                name: res.name
-              }, { root: true })
-              // 用户登录后从持久化数据加载一系列的设置
-              dispatch('menuTree')
-              dispatch('load')
-              dispatch('userInfo')
-              // 结束
-              resolve()
-            }
+            util.cookies.set('token', res.data.accessToken, { expires: 10 })
+            // 设置 vuex 用户信息
+            dispatch('d2admin/user/set', {
+              name: res.name
+            }, { root: true })
+            // 用户登录后从持久化数据加载一系列的设置
+            dispatch('menuTree')
+            dispatch('load')
+            dispatch('userInfo')
+            // 结束
+            resolve()
           })
           .catch(err => {
             console.log('err: ', err)
@@ -61,21 +57,16 @@ export default {
         return new Promise((resolve, reject) => {
           let params = { access_token: util.cookies.get('token') }
           Logout(params).then(result => {
-            if (result.errCode === 200) {
-              // 删除cookie
-              util.cookies.remove('token')
-              util.cookies.remove('userId')
-              // 清空 vuex 用户信息
-              dispatch('d2admin/user/set', {}, { root: true })
-              // 跳转路由
-              router.push({
-                name: 'login'
-              })
-            } else {
-              Message.error(result.data)
-            }
+            // 删除cookie
+            util.cookies.remove('token')
+            util.cookies.remove('userId')
+            // 清空 vuex 用户信息
+            dispatch('d2admin/user/set', {}, { root: true })
+            router.push({
+              name: 'login'
+            })
+            // 跳转路由
           }).catch(error => {
-            console.log('err: ', error)
             reject(error)
           })
         })
@@ -116,7 +107,7 @@ export default {
         return new Promise((resolve, reject) => {
           let params = { access_token: util.cookies.get('token') }
           UserInfo(params).then(result => {
-            if (result.errCode != 200) {
+            if (result.statusCode != 'CA20000') {
               Message({
                 message: '获取用户信息失败,请重新登录',
                 type: 'error',
@@ -128,10 +119,10 @@ export default {
                 }
               })
             } else {
-              let userId = result.data.userDetail.userId
+              let userId = result.userDetail.userId
               util.cookies.set('userId', userId, { expires: 10 })
-              let username = result.data.userDetail.username
-              let name = result.data.userDetail.name
+              let username = result.userDetail.username
+              let name = result.userDetail.name
               // 保存用户
               dispatch('d2admin/user/set', {
                 name: name,
@@ -154,8 +145,8 @@ export default {
       let url = MenuVueTreeCurrentPath
       let _self = this
       MenuVueTreeCurrent(url, null).then(result => {
-        let code = result.errCode
-        if (code != 200) {
+        let code = result.statusCode
+        if (code != 'CA20000') {
           Message({
             message: '获取用户信息失败,请重新登录',
             type: 'error',
@@ -164,7 +155,7 @@ export default {
             }
           })
         } else {
-          dispatch('d2admin/menu/SetAside', result.data, { root: true })
+          dispatch('d2admin/menu/SetAside', result, { root: true })
         }
       })
     },

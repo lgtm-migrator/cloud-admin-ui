@@ -105,7 +105,6 @@
 </template>
 <script> import { mapActions } from 'vuex'
 import { routerRemovePath, routerSavePath, routersPath, routerUpdatePath } from '@api/adminApi/router'
-import router from '@/router'
 import { MessageBox } from 'element-ui'
 
 export default {
@@ -179,17 +178,8 @@ export default {
       let routers = routersPath + '/' + _self.pages.page + '/' + _self.pages.pageSize
       let search = JSON.parse(JSON.stringify(_self.searchForm))
       this.routers({ url: routers, data: search }).then(result => {
-        if (result.errCode === 514) {
-          _self.$message.error(result.data)
-          router.push({
-            name: 'login'
-          })
-        } else if (result.errCode !== 200) {
-          _self.$message.error(result.data)
-          return null
-        }
-        _self.routerList = result.data.list
-        _self.pages.total = result.data.total
+        _self.routerList = result.list
+        _self.pages.total = result.total
       })
     },
     /**
@@ -299,13 +289,9 @@ export default {
       let _self = this
       let info = JSON.parse(JSON.stringify(_self.routerInfo))
       _self.addRouter({ url: routerSavePath, data: info }).then(result => {
-        if (result.errCode !== 200) {
-          this.$message.error(result.data)
-        } else {
-          _self.dialogFormVisible = false
-          _self.getRouters()
-          _self.setRouterInfoIsNull()
-        }
+        _self.dialogFormVisible = false
+        _self.getRouters()
+        _self.setRouterInfoIsNull()
       })
     },
     /**
@@ -316,13 +302,9 @@ export default {
       // let info = _self.routerInfo 为地址copy
       let info = JSON.parse(JSON.stringify(_self.routerInfo))
       _self.updateRouter({ url: routerUpdatePath, data: info }).then(result => {
-        if (result.errCode !== 200) {
-          this.$message.error(result.data)
-        } else {
-          _self.dialogFormVisible = false
-          _self.getRouters()
-          _self.setRouterInfoIsNull()
-        }
+        _self.dialogFormVisible = false
+        _self.getRouters()
+        _self.setRouterInfoIsNull()
       }).catch(err => {
         this.$message.error(err)
       })
@@ -335,15 +317,6 @@ export default {
       if (id) {
         let removePath = routerRemovePath + '/' + id
         _self.removeRouter({ url: removePath, data: null }).then(result => {
-          if (result.errCode === 514) {
-            _self.$message.error(result.data)
-            router.push({
-              name: 'login'
-            })
-          } else if (result.errCode !== 200) {
-            _self.$message.error(result.data)
-            return null
-          }
           _self.getRouters()
         })
       }
