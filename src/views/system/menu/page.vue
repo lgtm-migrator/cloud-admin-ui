@@ -153,7 +153,8 @@
                   :offset="0"
                   style="padding-left:10px;padding-right:10px">
             <el-form-item label="图标" prop="icon">
-              <el-input v-model="menuInfo.icon" placeholder="图标" clearable></el-input>
+              <e-icon-picker v-model="menuInfo.icon" clearable/>
+              <!--<el-input v-model="menuInfo.icon" placeholder="图标" clearable></el-input>-->
             </el-form-item>
           </el-col>
           <el-col :md="12"
@@ -579,10 +580,7 @@ export default {
     margin-bottom: 5px;
   }
 
-  .el-input-number {
-    position: relative;
-    display: inline-block;
-    width: 92%;
-    line-height: 38px;
+  .ui-fas {
+    width: 80%;
   }
 </style>

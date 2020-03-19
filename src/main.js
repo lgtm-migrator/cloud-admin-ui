@@ -13,13 +13,17 @@ import D2Crud from '@d2-projects/d2-crud'
 // 菜单和路由设置
 import router from './router'
 import menuHeader from '@/menu/header'
-import menuAside from '@/menu/aside'
 import { frameInRoutes } from '@/router/routes'
-
+import iconPicker from 'e-icon-picker'
+// 基础样式
+import 'e-icon-picker/dist/index.css'
+// fontAwesome 图标库样式
+import 'e-icon-picker/dist/main.css'
 // 核心插件
 Vue.use(d2Admin)
 Vue.use(ElementUI)
 Vue.use(D2Crud)
+Vue.use(iconPicker)
 new Vue({
   router,
   store,
