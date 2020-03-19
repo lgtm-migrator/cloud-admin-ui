@@ -43,8 +43,6 @@
                            align="center"></el-table-column>
           <el-table-column prop="order" label="执行顺序" sortable resizable :show-overflow-tooltip="true"
                            align="center"></el-table-column>
-          <el-table-column prop="createUserName" label="创建者" sortable resizable :show-overflow-tooltip="true"
-                           align="center"></el-table-column>
           <el-table-column prop="createTime" label="创建时间" sortable resizable :show-overflow-tooltip="true"
                            align="center"></el-table-column>
           <el-table-column label="操作" sortable resizable :show-overflow-tooltip="true"
