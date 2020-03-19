@@ -74,13 +74,9 @@ service.interceptors.response.use(
         case 'CA20000':
           // [ 示例 ] code === 0 代表没有错误
           return dataAxios.data
-        case 'xxx':
-          // [ 示例 ] 其它和后台约定的 code
-          errorCreate(`[ code: xxx ] ${dataAxios.msg}: ${response.config.url}`)
-          break
         default:
           // 不是正确的 code
-          errorCreate(`${dataAxios.msg}: ${response.config.url}`)
+          errorCreate(`${dataAxios.statusMessage}:${dataAxios.data}: ${response.config.url}`)
           break
       }
     }
