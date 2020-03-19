@@ -25,7 +25,7 @@ export default {
     // 侧栏菜单
     aside: [],
     // 侧边栏收缩
-    asideCollapse: setting.menu.asideCollapse,
+    asideCollapse: setting.menu.asideCollapse
   },
   actions: {
     /**
