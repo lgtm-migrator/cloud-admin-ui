@@ -21,7 +21,7 @@
           <el-tab-pane
             v-for="page in opened"
             :key="page.fullPath"
-            :label="page.meta.title || '未命名'"
+            :label="page.meta.title || (page.fullPath=='/index'? '首页':'未命名')"
             :name="page.fullPath"/>
         </el-tabs>
       </div>
