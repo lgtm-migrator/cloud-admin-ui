@@ -48,6 +48,22 @@ export function DeptUpdate (url, data) {
   }
 }
 
+/**
+ * 删除
+ * @param url
+ * @param data
+ * @returns {*}
+ * @constructor
+ */
+export function DeptRemove (url, data) {
+  url = deptBaseUrl(url)
+  if (data) {
+    return httpPost(url, data)
+  } else {
+    return httpPost(url, null)
+  }
+}
+
 export function deptBaseUrl (url) {
   if (url) {
     url = deptServer + url

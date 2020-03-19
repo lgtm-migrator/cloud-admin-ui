@@ -16,3 +16,9 @@ export const DeptSavePath = '/save'
  * @type {string}
  */
 export const DeptUpdatePath = '/update'
+
+/**
+ * 删除
+ * @type {string}
+ */
+export const DeptRemovePath = '/delete'

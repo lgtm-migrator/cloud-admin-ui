@@ -1,4 +1,4 @@
-import { DeptTree, DeptSave, DeptUpdate } from '@api/dept/dept'
+import { DeptTree, DeptSave, DeptUpdate, DeptRemove } from '@api/dept/dept'
 
 export default {
   namespaced: true,
@@ -44,6 +44,21 @@ export default {
     deptUpdate ({ dispatch }, { url, data } = {}) {
       return new Promise((resolve, reject) => {
         DeptUpdate(url, data).then(result => {
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    /**
+     * 删除
+     * @param dispatch
+     * @param url
+     * @param data
+     */
+    deptRemove ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        DeptRemove(url, data).then(result => {
           resolve(result)
         }).catch(error => {
           reject(error)

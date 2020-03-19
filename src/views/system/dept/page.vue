@@ -4,6 +4,7 @@
       <el-card shadow="never">
         <div slot="header">
           <el-button type="primary" size="medium" @click="handlerAddNew" icon="el-icon-plus" plain>添加</el-button>
+          <el-button type="danger" size="medium" @click="handleRemove" icon="el-icon-delete" plain>删除</el-button>
         </div>
         <div>
           <el-tree :data="treeData"
@@ -73,7 +74,8 @@
   </d2-container>
 </template>
 <script> import { mapActions } from 'vuex'
-import { DeptSavePath, DeptTreePath, DeptUpdatePath } from '@api/adminApi/dept'
+import { DeptSavePath, DeptTreePath, DeptUpdatePath, DeptRemovePath } from '@api/adminApi/dept'
+import { MessageBox } from 'element-ui'
 
 export default {
   data () {
@@ -120,7 +122,7 @@ export default {
     _self.getTree()
   },
   methods: {
-    ...mapActions('cloudAdmin/dept', ['deptTree', 'deptSave', 'deptUpdate']),
+    ...mapActions('cloudAdmin/dept', ['deptTree', 'deptSave', 'deptUpdate', 'deptRemove']),
     getTree () {
       let _self = this
       let url = DeptTreePath
@@ -171,7 +173,7 @@ export default {
       let _self = this
       let nodes = this.$refs.tree.getCheckedNodes()
       if (nodes.length > 1) {
-        _self.$message.error('请选择菜单(有且只有一个)')
+        _self.$message.warning('请选择菜单(有且只有一个)')
       } else if (nodes.length < 1) {
         _self.isUpdate = false
         _self.deptInfo = {
@@ -190,6 +192,22 @@ export default {
           order: 0,
           isEnabled: '1'
         }
+      }
+    },
+    /**
+     * 删除
+     */
+    handleRemove () {
+      let _self = this
+      let keys = _self.$refs.tree.getCheckedKeys()
+      if (keys.length <= 0) {
+        _self.$message.warning('请选择菜单')
+      } else {
+        MessageBox.confirm('是否删除该数据', '删除', {
+          type: 'warning'
+        }).then(() => {
+          _self.remove(keys)
+        })
       }
     },
     /**
@@ -258,6 +276,25 @@ export default {
           _self.handlerAddNew()
         }
       })
+    },
+    /**
+     * 删除
+     * @param ids
+     */
+    remove (ids) {
+      if (ids) {
+        let _self = this
+        let url = DeptRemovePath
+        _self.deptRemove({ url: url, data: ids }).then(result => {
+          let code = result.errCode
+          if (code != 200) {
+            _self.$message.error(result.data)
+          } else {
+            _self.getTree()
+            _self.handlerAddNew()
+          }
+        })
+      }
     }
   }
 }
