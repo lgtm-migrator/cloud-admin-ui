@@ -29,11 +29,14 @@ new Vue({
     // 处理路由 得到每一级的路由设置
     this.$store.commit('d2admin/page/init', frameInRoutes)
     // 设置顶栏菜单
-    this.$store.commit('d2admin/menu/headerSet', menuHeader)
-    // 设置侧边栏菜单
-    this.$store.commit('d2admin/menu/asideSet', menuAside)
+    // this.$store.commit('d2admin/menu/headerSet', menuHeader)
+    // // 设置侧边栏菜单
+    this.$store.dispatch('d2admin/menu/getAside')
+    // console.info('main' + result)
+    // this.$store.commit('d2admin/menu/asideSet', menuAside)
     // 初始化菜单搜索功能
     this.$store.commit('d2admin/search/init', menuHeader)
+    // 加载接口配置
   },
   mounted () {
     // 展示系统信息

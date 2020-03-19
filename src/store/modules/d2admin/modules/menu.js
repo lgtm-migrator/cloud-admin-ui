@@ -25,7 +25,7 @@ export default {
     // 侧栏菜单
     aside: [],
     // 侧边栏收缩
-    asideCollapse: setting.menu.asideCollapse
+    asideCollapse: setting.menu.asideCollapse,
   },
   actions: {
     /**
@@ -83,6 +83,44 @@ export default {
         // end
         resolve()
       })
+    },
+    /**
+     * 设置menu
+     * @param state
+     * @param dispatch
+     * @constructor
+     */
+    SetAside ({ state, dispatch }, aside) {
+      return new Promise(async resolve => {
+        // store 赋值
+        state.aside = aside
+        // 持久化
+        await dispatch('d2admin/db/set', {
+          dbName: 'sys',
+          path: 'menu.aside',
+          value: aside,
+          user: true
+        }, { root: true })
+        resolve()
+      })
+    },
+    /**
+     * 获取menu
+     * @param state
+     * @param dispatch
+     */
+    getAside ({ state, dispatch, commit }) {
+      return new Promise(async resolve => {
+        state.aside = await dispatch('d2admin/db/get', {
+          dbName: 'sys',
+          path: 'menu.aside',
+          defaultValue: [],
+          user: true
+        }, { root: true })
+        // 应用
+        commit('asideSet', state.aside)
+        resolve()
+      })
     }
   },
   mutations: {
@@ -103,6 +141,22 @@ export default {
     asideSet (state, menu) {
       // store 赋值
       state.aside = supplementMenuPath(menu)
+    }
+  },
+  method: {
+
+    _objToStrMap (obj) {
+      let strMap = new Map()
+      for (let k of Object.keys(obj)) {
+        strMap.set(k, obj[k])
+      }
+      return strMap
+    },
+    /**
+     *json转换为map
+     */
+    _jsonToMap (jsonStr) {
+      return this._objToStrMap(JSON.parse(jsonStr))
     }
   }
 }

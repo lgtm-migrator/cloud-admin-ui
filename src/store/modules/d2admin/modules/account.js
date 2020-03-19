@@ -2,6 +2,8 @@ import { Message, MessageBox } from 'element-ui'
 import util from '@/libs/util.js'
 import router from '@/router'
 import { Login, Logout, UserInfo } from '@api/user/user'
+import { MenuVueTreeCurrentPath } from '@/api/adminApi/menu'
+import { MenuVueTreeCurrent } from '@api/menu/menu'
 
 export default {
   namespaced: true,
@@ -24,7 +26,7 @@ export default {
           password
         })
           .then(res => {
-            if (res.errCode !== 200) {
+            if (res.errCode != 200) {
               Message.error(res.data)
             } else {
               util.cookies.set('token', res.data.accessToken, { expires: 10 })
@@ -33,6 +35,7 @@ export default {
                 name: res.name
               }, { root: true })
               // 用户登录后从持久化数据加载一系列的设置
+              dispatch('menuTree')
               dispatch('load')
               dispatch('userInfo')
               // 结束
@@ -113,7 +116,7 @@ export default {
         return new Promise((resolve, reject) => {
           let params = { access_token: util.cookies.get('token') }
           UserInfo(params).then(result => {
-            if (result.errCode !== 200) {
+            if (result.errCode != 200) {
               Message({
                 message: '获取用户信息失败,请重新登录',
                 type: 'error',
@@ -146,6 +149,24 @@ export default {
           })
         })
       }
+    },
+    menuTree ({ commit, dispatch }) {
+      let url = MenuVueTreeCurrentPath
+      let _self = this
+      MenuVueTreeCurrent(url, null).then(result => {
+        let code = result.errCode
+        if (code != 200) {
+          Message({
+            message: '获取用户信息失败,请重新登录',
+            type: 'error',
+            onClose: function () {
+              _self.logout()
+            }
+          })
+        } else {
+          dispatch('d2admin/menu/SetAside', result.data, { root: true })
+        }
+      })
     },
     /**
      * @description 用户登录后从持久化数据加载一系列的设置

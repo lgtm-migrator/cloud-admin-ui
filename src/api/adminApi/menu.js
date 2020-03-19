@@ -26,3 +26,9 @@ export const MenuUpdateByIdPath = '/update'
  * @type {string}
  */
 export const MenuRemovePath = '/delete'
+
+/**
+ * vue树形菜单
+ * @type {string}
+ */
+export const MenuVueTreeCurrentPath = '/vueMenuTree/current'

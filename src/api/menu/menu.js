@@ -77,6 +77,21 @@ export function MenuRemove (url, data) {
   }
 }
 
+/**
+ * vue树形菜单
+ * @param url
+ * @param data
+ * @constructor
+ */
+export function MenuVueTreeCurrent (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpGet(url, data)
+  } else {
+    return httpGet(url, null)
+  }
+}
+
 export function userBaseUrl (url) {
   if (url) {
     url = menuServer + url
