@@ -63,7 +63,7 @@ service.interceptors.response.use(
     // dataAxios 是 axios 返回数据中的 data
     const dataAxios = response.data
     // 这个状态码是和后端约定的
-    const { statusCode } = dataAxios
+    let statusCode = dataAxios.statusCode
     // 根据 code 进行判断
     if (statusCode === undefined) {
       // 如果没有 code 代表这不是项目后端开发的接口 比如可能是 D2Admin 请求最新版本
@@ -76,7 +76,7 @@ service.interceptors.response.use(
           return dataAxios.data
         default:
           // 不是正确的 code
-          errorCreate(`${dataAxios.statusMessage}:${dataAxios.data}: ${response.config.url}`)
+          errorCreate(`${dataAxios.statusMessage}:${dataAxios.data}`)
           break
       }
     }
@@ -94,7 +94,7 @@ service.interceptors.response.use(
           error.message = '拒绝访问'
           break
         case 404:
-          error.message = `请求地址出错: ${error.response.config.url}`
+          error.message = `地址不存在`
           break
         case 408:
           error.message = '请求超时'

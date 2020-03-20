@@ -26,7 +26,7 @@ export default {
           password
         })
           .then(res => {
-            util.cookies.set('token', res.data.accessToken, { expires: 10 })
+            util.cookies.set('token', res.accessToken, { expires: 10 })
             // 设置 vuex 用户信息
             dispatch('d2admin/user/set', {
               name: res.name
@@ -107,33 +107,20 @@ export default {
         return new Promise((resolve, reject) => {
           let params = { access_token: util.cookies.get('token') }
           UserInfo(params).then(result => {
-            if (result.statusCode != 'CA20000') {
-              Message({
-                message: '获取用户信息失败,请重新登录',
-                type: 'error',
-                onClose: function () {
-                  // 跳转路由
-                  router.push({
-                    name: 'login'
-                  })
-                }
-              })
-            } else {
-              let userId = result.userDetail.userId
-              util.cookies.set('userId', userId, { expires: 10 })
-              let username = result.userDetail.username
-              let name = result.userDetail.name
-              // 保存用户
-              dispatch('d2admin/user/set', {
-                name: name,
-                userId: userId,
-                username: username
-              }, { root: true })
-              // 用户登录后从持久化数据加载一系列的设置
-              dispatch('load')
-              // 结束
-              resolve()
-            }
+            let userId = result.userDetail.userId
+            util.cookies.set('userId', userId, { expires: 10 })
+            let username = result.userDetail.username
+            let name = result.userDetail.name
+            // 保存用户
+            dispatch('d2admin/user/set', {
+              name: name,
+              userId: userId,
+              username: username
+            }, { root: true })
+            // 用户登录后从持久化数据加载一系列的设置
+            dispatch('load')
+            // 结束
+            resolve()
           }).catch(error => {
             console.log('err: ', error)
             reject(error)
@@ -143,20 +130,8 @@ export default {
     },
     menuTree ({ commit, dispatch }) {
       let url = MenuVueTreeCurrentPath
-      let _self = this
       MenuVueTreeCurrent(url, null).then(result => {
-        let code = result.statusCode
-        if (code != 'CA20000') {
-          Message({
-            message: '获取用户信息失败,请重新登录',
-            type: 'error',
-            onClose: function () {
-              _self.logout()
-            }
-          })
-        } else {
-          dispatch('d2admin/menu/SetAside', result, { root: true })
-        }
+        dispatch('d2admin/menu/SetAside', result, { root: true })
       })
     },
     /**
