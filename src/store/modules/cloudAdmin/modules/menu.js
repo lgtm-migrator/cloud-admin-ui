@@ -1,4 +1,12 @@
-import { MenuSave, MenusByParentId, MenusTree, MenuUpdateById, MenuRemove, MenuVueTreeCurrent } from '@api/menu/menu'
+import {
+  MenuRemove,
+  MenuRemoveByIds,
+  MenuSave,
+  MenusByParentId,
+  MenusTree,
+  MenuUpdateById,
+  MenuVueTreeCurrent
+} from '@api/menu/menu'
 
 export default {
   namespaced: true,
@@ -89,6 +97,22 @@ export default {
     menuVueTreeCurrent ({ dispatch }, { url, data } = {}) {
       return new Promise((resolve, reject) => {
         MenuVueTreeCurrent(url, data).then(result => {
+          resolve(result)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    /**
+     * 删除根据id
+     * @param dispatch
+     * @param url
+     * @param data
+     * @constructor
+     */
+    menuRemoveByIds ({ dispatch }, { url, data } = {}) {
+      return new Promise((resolve, reject) => {
+        MenuRemoveByIds(url, data).then(result => {
           resolve(result)
         }).catch(error => {
           reject(error)

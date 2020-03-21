@@ -6,18 +6,17 @@
           <span>系统菜单</span>
         </div>
         <div>
-          <el-tree
-            :props="props"
-            :load="loadNode"
-            :data="datamenuList"
-            ref="tree"
-            node-key="id"
-            lazy
-            show-checkbox
-            check-strictly
-            :highlight-current='true'
-            @check="handleNodeCheckEvent"
-            @check-change="handleNodeChangeCheckEvent">
+          <el-tree :data="datamenuList"
+                   show-checkbox
+                   ref="tree"
+                   node-key="id"
+                   :props="props"
+                   check-strictly
+                   :highlight-current='true'
+                   default-expand-all
+                   @check-change="handleNodeChangeCheckEvent"
+                   @check="handleNodeCheckClickEvent"
+          >
           </el-tree>
         </div>
       </el-card>
@@ -34,7 +33,7 @@
                            align="center"></el-table-column>
           <el-table-column prop="systemPermissionVO.url" label="权限标识" sortable resizable :show-overflow-tooltip="true"
                            align="center"></el-table-column>
-          <el-table-column prop="systemMenuVO.description" label="所属菜单" sortable resizable :show-overflow-tooltip="true"
+          <el-table-column prop="systemMenuVO.name" label="所属菜单" sortable resizable :show-overflow-tooltip="true"
                            align="center"></el-table-column>
           <el-table-column prop="systemPermissionVO.createTime" label="创建时间" sortable resizable
                            :show-overflow-tooltip="true"
@@ -64,116 +63,37 @@
       </el-card>
     </el-col>
     <el-dialog title="权限信息" :before-close="handleDialogClose" :visible.sync="dialogPermissionFormVisible">
-      <el-form :inline="true" label-width="auto" :model="permissionInfo"
+      <el-form label-width="auto" :model="permissionInfo"
                :label-position="position"
                ref="permissionForm" required-asterisk
-               :rules="rules">
-        <el-row>
-          <el-col :md="12"
-                  :xs="24"
-                  :offset="0"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item required label="名称" prop="name">
-              <el-input v-model="permissionInfo.name" clearable></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :md="12"
-                  :xs="24"
-                  :offset="0"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item label="英文名称" prop="enname">
-              <el-input v-model="permissionInfo.enname" clearable></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :md="12"
-                  :xs="24"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item label="所属菜单" prop="menu">
-              <el-input disabled v-model="permissionInfo.menuName" clearable></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :md="12"
-                  :xs="24"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item required label="权限标识" prop="url">
-              <el-input v-model="permissionInfo.url" clearable></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :md="24"
-                  :xs="24"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item label="说明" prop="description">
-              <el-input type="textarea" v-model="permissionInfo.description" clearable></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
+               :rules="rules" center>
+        <el-form-item required label="名称" prop="name">
+          <el-input v-model="permissionInfo.name" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="英文名称" prop="enname">
+          <el-input v-model="permissionInfo.enname" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="所属菜单" prop="menu">
+          <el-input disabled v-model="permissionInfo.menuName" clearable></el-input>
+        </el-form-item>
+        <el-form-item required label="权限标识" prop="url">
+          <el-input v-model="permissionInfo.url" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="说明" prop="description">
+          <el-input type="textarea" v-model="permissionInfo.description" clearable></el-input>
+        </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <div slot="footer" v-if="!isView" class="dialog-footer">
         <el-button type="primary" @click="handleSaveEvent">保存</el-button>
         <el-button @click="handleDialogCloseEvent">取 消</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="权限信息" :visible.sync="dialogPermissionViewFormVisible">
-      <el-form :inline="true" label-width="auto" :model="permissionViewInfo"
-               :label-position="position"
-               ref="permissionForm" required-asterisk
-               disabled>
-        <el-row>
-          <el-col :md="12"
-                  :xs="24"
-                  :offset="0"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item required label="名称" prop="name">
-              <el-input v-model="permissionViewInfo.name" clearable></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :md="12"
-                  :xs="24"
-                  :offset="0"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item label="英文名称" prop="enname">
-              <el-input v-model="permissionViewInfo.enname" clearable></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :md="12"
-                  :xs="24"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item label="所属菜单" prop="menu">
-              <el-input disabled v-model="permissionViewInfo.menuName" clearable></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :md="12"
-                  :xs="24"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item required label="权限标识" prop="url">
-              <el-input v-model="permissionViewInfo.url" clearable></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :md="24"
-                  :xs="24"
-                  style="padding-left:10px;padding-right:10px">
-            <el-form-item label="说明" prop="description">
-              <el-input type="textarea" v-model="permissionViewInfo.description" clearable></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-    </el-dialog>
   </d2-container>
 </template>
 <script>import { mapActions } from 'vuex'
-import { MenusByParentIdPath } from '@api/adminApi/menu'
+import { MenusTreePath } from '@api/adminApi/menu'
 import { PermissionSavePath, PermissionUnBindingPath, PermissionUpdatePath } from '@api/adminApi/permission'
 import { PermissionMenuByMenuIdPath } from '@api/adminApi/permissionMenu'
-import router from '@/router'
 import { MessageBox } from 'element-ui'
 
 export default {
@@ -193,6 +113,7 @@ export default {
       permissionInfo: {},
       permissionViewInfo: {},
       isUpdate: false,
+      isView: false,
       rules: {
         name: [{
           required: true,
@@ -212,33 +133,21 @@ export default {
   },
   mounted () {
     let _self = this
-    _self.getMenusByParentId(0)
+    _self.getListAll()
   },
   methods: {
-    ...mapActions('cloudAdmin/menu', ['menuList']),
+    ...mapActions('cloudAdmin/menu', ['menuTree']),
     ...mapActions('cloudAdmin/permission', ['permissionSave', 'permissionUpdate', 'permissionUnBinding']),
     ...mapActions('cloudAdmin/permissionMenu', ['permissionMenuByMenuId']),
     /**
      * 获取菜单集
      */
-    getMenusByParentId (params) {
+    getListAll () {
       let _self = this
-      let url = MenusByParentIdPath + '/' + params
-      _self.menuList({ url: url, data: '' }).then(result => {
+      let url = MenusTreePath + '/' + 0
+      _self.menuTree({ url: url, data: null }).then(result => {
         _self.datamenuList = result
       })
-    },
-    loadNode (node, resolve) {
-      let _self = this
-      if (node.level === 0) {
-
-      } else {
-        let id = node.data.id
-        let url = MenusByParentIdPath + '/' + id
-        _self.menuList({ url: url, data: '' }).then(result => {
-          resolve(result)
-        })
-      }
     },
     handleDialogClose (done) {
       let _self = this
@@ -286,18 +195,15 @@ export default {
       }
     },
     /**
-     * 树形节点点击
+     * 选中
+     * @param data
+     * @param node
      */
-    handleNodeCheckEvent (data, node) {
+    handleNodeCheckClickEvent (data, node) {
       let _self = this
-      if (node.checkedKeys.length > 1) {
-        return null
-      } else if (node.checkedKeys.length < 1) {
-        return null
-      }
-      let id = data.id
-      _self.currentCheckedId = id
-      _self.permissionMenuByMenuIdHandler(id)
+      let info = JSON.parse(JSON.stringify(data))
+      _self.currentCheckedId = info.id
+      _self.permissionMenuByMenuIdHandler(info.id)
     },
     /**
      * 保存
@@ -337,12 +243,16 @@ export default {
       let _self = this
       let menu = row.systemMenuVO
       let permission = row.systemPermissionVO
-      _self.permissionViewInfo.name = permission.name
-      _self.permissionViewInfo.enname = permission.enname
-      _self.permissionViewInfo.menuName = menu.name
-      _self.permissionViewInfo.url = permission.url
-      _self.permissionViewInfo.description = permission.description
-      _self.dialogPermissionViewFormVisible = true
+      _self.permissionInfo = {
+        name: permission.name,
+        enname: permission.enname,
+        menuName: menu.name,
+        url: permission.url,
+        description: permission.description,
+        id: permission.id
+      }
+      _self.isView = true
+      _self.dialogPermissionFormVisible = true
     },
     /**
      *编辑
@@ -360,6 +270,7 @@ export default {
         id: permission.id
       }
       _self.isUpdate = true
+      _self.isView = false
       _self.dialogPermissionFormVisible = true
     },
     /**

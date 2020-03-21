@@ -78,6 +78,21 @@ export function MenuRemove (url, data) {
 }
 
 /**
+ * 根据id删除
+ * @param url
+ * @param data
+ * @constructor
+ */
+export function MenuRemoveByIds (url, data) {
+  url = userBaseUrl(url)
+  if (data) {
+    return httpPost(url, data)
+  } else {
+    return httpPost(url, null)
+  }
+}
+
+/**
  * vue树形菜单
  * @param url
  * @param data
